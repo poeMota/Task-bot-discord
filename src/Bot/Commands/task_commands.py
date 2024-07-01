@@ -196,6 +196,11 @@ class EndTaskDropdown(disnake.ui.StringSelect):
                 value=TaskWorksTypes.bad.value[1]
                 ),
             disnake.SelectOption(
+                label=f"{TaskWorksTypes.haveNoTime.value[0]} (x{TaskWorksTypes.haveNoTime.value[1]})",
+                description=member.display_name,
+                value=TaskWorksTypes.haveNoTime.value[1]
+                ),
+            disnake.SelectOption(
                 label=f"{TaskWorksTypes.noWorking.value[0]} (x{TaskWorksTypes.noWorking.value[1]})",
                 description=member.display_name,
                 value=TaskWorksTypes.noWorking.value[1]
