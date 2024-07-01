@@ -131,6 +131,7 @@ def add_task_commands(bot: disnake.Client):
             description="последний путь таска.",
             default=None
         )):
+        await inter.response.defer(ephemeral=True)
         if isinstance(inter.channel, disnake.Thread) and isinstance(inter.channel.parent, disnake.ForumChannel):
             task: Task = await bot.get_task_by_thread(inter.channel)
             if task is not None:
@@ -139,10 +140,10 @@ def add_task_commands(bot: disnake.Client):
                     Logger.low(inter, f"последний сейв заказа {task.name} - {path}")
                 else:
                     task.set_last_save(task.lastSave)
-                await inter.send(content=f"**Последний сейв**: {task.lastSave}")
+                await inter.edit_original_message(content=f"**Последний сейв**: {task.lastSave}")
                 return
         
-        await inter.send(content="Вы не находитесь в ветке активного заказа для выполения данной команды.", ephemeral=True)
+        await inter.edit_original_message(content="Вы не находитесь в ветке активного заказа для выполения данной команды.")
 
 
     @bot.slash_command(
