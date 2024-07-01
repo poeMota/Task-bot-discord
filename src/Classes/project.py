@@ -21,7 +21,7 @@ class Project:
         return instance
 
 
-    def __init__(self, bot, name) -> None:
+    def __init__(self, bot: disnake.Client, name) -> None:
         if not hasattr(self, '_initialized'):
             self.bot = bot
             self.inited = False
@@ -87,12 +87,14 @@ class Project:
 
         try:
             for role_id in project_data[self.name]["stat_post"]:
-                self.statPost[self.bot.get_role(role_id)] = await self.bot.get_channel(
+                self.statPost[self.bot.get_role(int(role_id))] = await self.bot.get_channel(
                     project_data[self.name]["stat_channel"]
                     ).fetch_message(
                         project_data[self.name]["stat_post"][role_id]
                         )
-        except Exception:
+        except Exception as e:
+            print(repr(e))
+            Logger.debug(f"Ошибка при чтении поста статистики {self.name}, {repr(e)}, создаём новый")
             await self.send_stat_post()
         
         self.inited = True
@@ -242,7 +244,7 @@ class Project:
         if self.inited:
             loop = asyncio.get_event_loop()
             embeds = self.project_stat_embed()
-            for role in self.statPost:
+            for role in self.associatedRoles:
                 loop.create_task(
                     self.statPost[role].edit(embed=embeds[role])
                     )

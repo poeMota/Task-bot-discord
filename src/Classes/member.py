@@ -158,8 +158,8 @@ class Member:
         text = ""
         for task in self.inTasks:
             if isinstance(task, str):
-                text = f"{text} {task}"
-            else: text = f"{text} {task.url}"
+                text = f"{text}\n- {task}"
+            else: text = f"{text}\n- {task.url}"
 
         if text == "": text = "нет"
         return text

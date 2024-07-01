@@ -20,7 +20,7 @@ class Bot(commands.InteractionBot):
     def __init__(self):
         if hasattr(self, '_initialized') and self._initialized:
             return
-        super().__init__(intents=disnake.Intents.all(), test_guilds=[from_toml("config", "guild")], command_sync_flags=commands.CommandSyncFlags.all())
+        super().__init__(intents=disnake.Intents.all(), test_guilds=[from_toml("config", "guild")])
         self.subPost: SubscribePost = None
         self._initialized = True
 
