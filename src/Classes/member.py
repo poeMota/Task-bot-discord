@@ -142,7 +142,7 @@ class Member:
             "очки": self.score
             }
         text = (f"╠︎ **заказов выполененно**: {len(self.doneTasks)}\n" +
-                "" if len(self.curationTasks) == 0 else f"╠︎ **курирование заказов**: {len(self.curationTasks)}\n" +
+                f"╠︎ **курирование заказов**: {len(self.curationTasks)}\n" +
                 f"╠︎ **в бригадах**: {self.in_brigades_text()}\n" +
                 f"╠︎ **последняя активность**: {self.last_activity}")
 
