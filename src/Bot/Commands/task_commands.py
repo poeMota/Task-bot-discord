@@ -218,7 +218,7 @@ class EndTaskDropdown(disnake.ui.StringSelect):
     async def callback(self, inter: disnake.MessageInteraction):
         if not self.task._done:
             self.task._endingResult[Member(self.member)] = int(self.task.score * float(self.values[0]))
-            await inter.response.send_message(content=f"<@{self.member.id}> получит **{int(self.task.score * float(self.values[0]))}** очков", ephemeral=True)
+            await inter.send(content=f"<@{self.member.id}> получит **{int(self.task.score * float(self.values[0]))}** очков", ephemeral=True)
             if self.task.is_endingResult_filled():
                 await self.task.close()
                 await inter.send(content="Заказ завершен :white_check_mark:")
