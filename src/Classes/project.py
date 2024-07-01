@@ -200,7 +200,6 @@ class Project:
             "форум": f"<#{self.forum.id}>",
             "основной канал": f"<#{self.mainChannel.id}>",
             "канал статистики": f"<#{self.statChannel.id}>",
-            "пост статистики": self.statPost.jump_url,
             "роли проекта": [f"<@&{role.id}>" for role in self.associatedRoles],
             "теги": [str(tag) for tag in self.tags],
             "таски": [str(task) for task in self.tasks]
