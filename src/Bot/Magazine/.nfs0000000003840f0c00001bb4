@@ -1,0 +1,1 @@
+from src.Bot.Magazine.magazine import add_magazine
