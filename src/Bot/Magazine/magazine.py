@@ -229,7 +229,7 @@ async def mute(inter: disnake.AppCommandInteraction, kwargs):
 
 async def send(inter: disnake.AppCommandInteraction, kwargs):
     if "channel" in kwargs:
-        channel: disnake.TextChannel = utils.get(inter.guild, id=int(kwargs["channel"]))
+        channel: disnake.TextChannel = utils.get(inter.guild.channels, id=int(kwargs["channel"]))
         if channel is not None:
             await channel.send(kwargs["text"])
     else: await inter.channel.send(kwargs["text"])
