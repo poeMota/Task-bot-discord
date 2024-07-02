@@ -70,10 +70,10 @@ def add_members_commands(bot: disnake.Client):
 
 
     @bot.slash_command(
-        name = "изменить-статистику",
-        description = "Изменить статистику пользователя."
+        name = "сикей",
+        description = "Изменить сикей пользователя."
     )
-    async def change_folder(
+    async def member_ckey(
         inter: disnake.CommandInteraction,
         mem: disnake.Member = commands.Param(
             name='пользователь',
