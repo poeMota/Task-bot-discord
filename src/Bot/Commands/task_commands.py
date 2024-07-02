@@ -110,15 +110,13 @@ def add_task_commands(bot: disnake.Client):
         description="Пингануть всех членов бригады."
     )
     async def ping(inter: disnake.CommandInteraction):
-        await inter.response.defer(ephemeral=True)
         if isinstance(inter.channel, disnake.Thread) and isinstance(inter.channel.parent, disnake.ForumChannel):
             task: Task = await bot.get_task_by_thread(inter.channel)
             if task is not None:
-                await inter.send(content=task.get_members_ping())
-                await inter.edit_original_response(content="**Done**")
+                await inter.send(content=task.get_members_ping(), ephemeral=True)
                 return
 
-        await inter.edit_original_response(content="Вы не находитесь в ветке активного заказа для выполения данной команды.")
+        await inter.send(content="Вы не находитесь в ветке активного заказа для выполения данной команды.", ephemeral=True)
 
     
     @bot.slash_command(
