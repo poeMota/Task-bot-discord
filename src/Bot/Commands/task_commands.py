@@ -1,4 +1,5 @@
 import enum
+import math
 import disnake
 from disnake.ext import commands
 
@@ -73,8 +74,9 @@ def add_task_commands(bot: disnake.Client):
                 task._endingResult = {}
                 if task.brigadire is not None: 
                     task._endingResult[task.brigadire] = int(task.score * 2) # TODO: move this to config
-                view = DropDownView(task)
-                await inter.edit_original_message(f"Оцените работу участников таска:", view=view)
+                for i in range(math.ceil(len(task.members) / maxPage)):
+                    await inter.send(view=DropDownView(task, i), ephemeral=True)
+                await inter.edit_original_message(f"Оцените работу участников таска:")
                 Logger.high(inter, f"закрыт заказ {task.name}")
                 return
         
@@ -163,6 +165,9 @@ def add_task_commands(bot: disnake.Client):
 
 
 # region Task End
+maxPage = 6 # Max members on page
+
+
 class TaskWorksTypes(enum.Enum): # TODO: move this to config
     veryGood = ["Отлично работал", "2"]
     good = ["Хорошо работал", "1.5"]
@@ -173,44 +178,45 @@ class TaskWorksTypes(enum.Enum): # TODO: move this to config
 
 
 class EndTaskDropdown(disnake.ui.StringSelect):
-    def __init__(self, task: Task, member: disnake.Member):
+    def __init__(self, task: Task, member: disnake.Member, page: int):
         self.task = task
         self.member = member
+        self.page = page
         options = [
             disnake.SelectOption(
                 label=f"{TaskWorksTypes.veryGood.value[0]} (x{TaskWorksTypes.veryGood.value[1]})", 
-                description=member.name,
+                description=member.display_name,
                 value=TaskWorksTypes.veryGood.value[1]
                 ),
             disnake.SelectOption(
                 label=f"{TaskWorksTypes.good.value[0]} (x{TaskWorksTypes.good.value[1]})",
-                description=member.name,
+                description=member.display_name,
                 value=TaskWorksTypes.good.value[1]
                 ),
             disnake.SelectOption(
                 label=f"{TaskWorksTypes.normal.value[0]} (x{TaskWorksTypes.normal.value[1]})",
-                description=member.name,
+                description=member.display_name,
                 value=TaskWorksTypes.normal.value[1]
                 ),
             disnake.SelectOption(
                 label=f"{TaskWorksTypes.bad.value[0]} (x{TaskWorksTypes.bad.value[1]})",
-                description=member.name,
+                description=member.display_name,
                 value=TaskWorksTypes.bad.value[1]
                 ),
             disnake.SelectOption(
                 label=f"{TaskWorksTypes.haveNoTime.value[0]} (x{TaskWorksTypes.haveNoTime.value[1]})",
-                description=member.name,
+                description=member.display_name,
                 value=TaskWorksTypes.haveNoTime.value[1]
                 ),
             disnake.SelectOption(
                 label=f"{TaskWorksTypes.noWorking.value[0]} (x{TaskWorksTypes.noWorking.value[1]})",
-                description=member.name,
+                description=member.display_name,
                 value=TaskWorksTypes.noWorking.value[1]
                 )
         ]
 
         super().__init__(
-            placeholder=f"Оцените работу {member.name} в таске.",
+            placeholder=f"Оцените работу {member.display_name} в таске.",
             min_values=1,
             max_values=1,
             options=options,
@@ -226,9 +232,8 @@ class EndTaskDropdown(disnake.ui.StringSelect):
 
 
 class DropDownView(disnake.ui.View):
-    def __init__(self, task: Task):
+    def __init__(self, task: Task, page: int):
         super().__init__()
-        for member in task.members:
-            if member != task.brigadire: 
-                self.add_item(EndTaskDropdown(task, member.member))
+        for member in task.members[page * maxPage: page * maxPage + maxPage]:
+            if member != task.brigadire: self.add_item(EndTaskDropdown(task, member.member, page))
 # endregion
