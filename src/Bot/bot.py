@@ -58,7 +58,7 @@ class Bot(commands.InteractionBot):
     async def get_project_by_forum(self, forum: disnake.ForumChannel) -> (Project | None):
         for name in get_projects():
             project = Project(self, name)
-            await project.read_project_info()
+            #await project.read_project_info()
             if project.forum == forum: 
                 return project
             
