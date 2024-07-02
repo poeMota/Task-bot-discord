@@ -215,8 +215,8 @@ async def give_role(inter: disnake.AppCommandInteraction, kwargs):
 async def rem_role(inter: disnake.AppCommandInteraction, kwargs):
     for i in kwargs["rem_roles"]:
         for role in inter.guild.roles:
-            if role.name == i and i in inter.author.roles:
-                await inter.author.remove_roles(i)
+            if role.name == i and role in inter.author.roles:
+                await inter.author.remove_roles(role)
 
 
 async def mute(inter: disnake.AppCommandInteraction, kwargs):
