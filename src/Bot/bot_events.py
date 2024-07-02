@@ -51,15 +51,16 @@ def add_events(bot: disnake.Client):
 
             task: Task = await bot.get_task_by_thread(thread)
             member = Member(payload.member)
-            if (task is not None and len(member.inTasks) < task.project.maxBrigPerUser
-                and len(task.members) < task.maxMembers):
-                if task not in member.inTasks and task.url not in member.inTasks:
-                    member.join_task(task)
-                    await thread.send(content=f"<@{payload.member.id}> присоединился в бригаду.")
-            else:
-                channel = bot.get_channel(payload.channel_id)
-                message = await channel.fetch_message(payload.message_id)
-                await message.remove_reaction(payload.emoji, member)
+            if task is not None and member not in task.members:
+                if (len(member.inTasks) < task.project.maxBrigPerUser
+                    and len(task.members) < task.maxMembers):
+                    if task not in member.inTasks and task.url not in member.inTasks:
+                        member.join_task(task)
+                        await thread.send(content=f"<@{payload.member.id}> присоединился в бригаду.")
+                else:
+                    channel = bot.get_channel(payload.channel_id)
+                    message = await channel.fetch_message(payload.message_id)
+                    await message.remove_reaction(payload.emoji, member)
             
         # Role post
         sub_channel = utils.get(guild.channels, id=from_toml("config", "subscribe_channel"))
