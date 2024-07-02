@@ -31,6 +31,7 @@ class Member:
             self.score = 0
             self.AllTimeScore = 0
 
+            self.ckey = ""
             self.warns = []
             self.notes = []
             self.last_activity = ""
@@ -48,13 +49,14 @@ class Member:
             self.write_member_info()
             return
 
-        self.inTasks, self.doneTasks, self.curationTasks, self.ownFolder, self.score, self.AllTimeScore, self.warns, self.notes = (
+        self.inTasks, self.doneTasks, self.curationTasks, self.ownFolder, self.score, self.AllTimeScore, self.ckey, self.warns, self.notes = (
             "" if "в бригадах" not in members_data[str(self.id)] else members_data[str(self.id)]["в бригадах"],
             [] if "выполненные заказы" not in members_data[str(self.id)] else members_data[str(self.id)]["выполненные заказы"],
             [] if "курирование заказов" not in members_data[str(self.id)] else members_data[str(self.id)]["курирование заказов"],
             "" if "личная папка" not in members_data[str(self.id)] else members_data[str(self.id)]["личная папка"],
             0 if "очки" not in members_data[str(self.id)] else members_data[str(self.id)]["очки"],
             0 if "очков за всё время" not in members_data[str(self.id)] else members_data[str(self.id)]["очков за всё время"],
+            "" if "@сикей" not in members_data[str(self.id)] else members_data[str(self.id)]["@сикей"],
             [] if "@предупреждения" not in members_data[str(self.id)] else members_data[str(self.id)]["@предупреждения"],
             [] if "@заметки" not in members_data[str(self.id)] else members_data[str(self.id)]["@заметки"]
         )
@@ -79,6 +81,7 @@ class Member:
             "личная папка": self.ownFolder,
             "очки": self.score,
             "очков за всё время": self.AllTimeScore,
+            "@сикей": self.ckey,
             "@последняя активность": self.last_activity,
             "@предупреждения": self.warns,
             "@заметки": self.notes
@@ -201,6 +204,11 @@ class Member:
 
     def change_folder(self, folder: str):
         self.ownFolder = folder
+        self.update()
+    
+
+    def set_ckey(self, ckey):
+        self.ckey = ckey
         self.update()
 
 

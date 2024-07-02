@@ -212,7 +212,9 @@ class Page:
 async def give_role(inter: disnake.AppCommandInteraction, kwargs):
     for i in kwargs["add_roles"]:
         for role in inter.guild.roles:
-            if role.name == i: await inter.author.add_roles(role)
+            if role.name == i: 
+                await inter.author.add_roles(role)
+                break
 
 
 async def rem_role(inter: disnake.AppCommandInteraction, kwargs):
@@ -220,6 +222,7 @@ async def rem_role(inter: disnake.AppCommandInteraction, kwargs):
         for role in inter.guild.roles:
             if role.name == i and role in inter.author.roles:
                 await inter.author.remove_roles(role)
+                break
 
 
 async def mute(inter: disnake.AppCommandInteraction, kwargs):

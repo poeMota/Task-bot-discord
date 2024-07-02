@@ -65,6 +65,24 @@ def add_members_commands(bot: disnake.Client):
                 member.curationTasks = member.rem_from_stat(member.curationTasks, value)
 
         member.update()
-        Events.onMemberInfoChanged.raiseEvent(member)
         await inter.send(content="**Done**", ephemeral=True)
         Logger.medium(inter, f"изменена статистика пользователя {mem.name}")
+
+
+    @bot.slash_command(
+        name = "изменить-статистику",
+        description = "Изменить статистику пользователя."
+    )
+    async def change_folder(
+        inter: disnake.CommandInteraction,
+        mem: disnake.Member = commands.Param(
+            name='пользователь',
+            description='Пользователь, которому нужно привязать ckey.'
+        ),
+        ckey: str = commands.Param(
+            name='ckey',
+            description='ckey, пользователя.'
+        )):
+        Member(mem).set_ckey(ckey)
+        await inter.send(content="**Done**", ephemeral=True)
+        Logger.medium(inter, f"задан сикей пользователя {mem.name}: {ckey}")
