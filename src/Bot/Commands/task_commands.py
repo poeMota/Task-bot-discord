@@ -179,38 +179,38 @@ class EndTaskDropdown(disnake.ui.StringSelect):
         options = [
             disnake.SelectOption(
                 label=f"{TaskWorksTypes.veryGood.value[0]} (x{TaskWorksTypes.veryGood.value[1]})", 
-                description=member.display_name,
+                description=member.name,
                 value=TaskWorksTypes.veryGood.value[1]
                 ),
             disnake.SelectOption(
                 label=f"{TaskWorksTypes.good.value[0]} (x{TaskWorksTypes.good.value[1]})",
-                description=member.display_name,
+                description=member.name,
                 value=TaskWorksTypes.good.value[1]
                 ),
             disnake.SelectOption(
                 label=f"{TaskWorksTypes.normal.value[0]} (x{TaskWorksTypes.normal.value[1]})",
-                description=member.display_name,
+                description=member.name,
                 value=TaskWorksTypes.normal.value[1]
                 ),
             disnake.SelectOption(
                 label=f"{TaskWorksTypes.bad.value[0]} (x{TaskWorksTypes.bad.value[1]})",
-                description=member.display_name,
+                description=member.name,
                 value=TaskWorksTypes.bad.value[1]
                 ),
-            #disnake.SelectOption(
-                #label=f"{TaskWorksTypes.haveNoTime.value[0]} (x{TaskWorksTypes.haveNoTime.value[1]})",
-                #description=member.display_name,
-                #value=TaskWorksTypes.haveNoTime.value[1]
-                #),
+            disnake.SelectOption(
+                label=f"{TaskWorksTypes.haveNoTime.value[0]} (x{TaskWorksTypes.haveNoTime.value[1]})",
+                description=member.name,
+                value=TaskWorksTypes.haveNoTime.value[1]
+                ),
             disnake.SelectOption(
                 label=f"{TaskWorksTypes.noWorking.value[0]} (x{TaskWorksTypes.noWorking.value[1]})",
-                description=member.display_name,
+                description=member.name,
                 value=TaskWorksTypes.noWorking.value[1]
                 )
         ]
 
         super().__init__(
-            placeholder=f"Оцените работу {member.display_name} в таске.",
+            placeholder=f"Оцените работу {member.name} в таске.",
             min_values=1,
             max_values=1,
             options=options,
