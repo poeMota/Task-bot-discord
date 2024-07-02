@@ -83,7 +83,7 @@ class Magazine:
                 name= "Стажер+",
                 description= "Получить роль стажера+, что даёт доступ стажерам ко всем основным командам для маппинга (загрузка/сохранение карт).",
                 price= 7,
-                on_buy= [give_role],
+                on_buy= [give_role, send],
                 access= ["стажер-маппер"],
                 not_access= ["+"],
                 add_roles= ["+"],
