@@ -185,6 +185,8 @@ def add_task_commands(bot: disnake.Client):
                 if param == "макс. участников":
                     task.set_max_members(value)
                     await inter.edit_original_response(content="**Done**")
+                    await task.thread.send(f"максимальное количество участников таска теперь **{value}**")
+                    Logger.high(inter, f"максимальное количество участников таска {task.name} теперь {value}")
                     return
         
         await inter.edit_original_message(content="Вы не находитесь в ветке активного заказа для выполения данной команды.")
