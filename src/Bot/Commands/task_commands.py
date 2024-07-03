@@ -134,7 +134,7 @@ def add_task_commands(bot: disnake.Client):
             description="последний путь таска.",
             default=None
         )):
-        await inter.response.defer(ephemeral=True)
+        await inter.response.defer()
         if isinstance(inter.channel, disnake.Thread) and isinstance(inter.channel.parent, disnake.ForumChannel):
             task: Task = await bot.get_task_by_thread(inter.channel)
             if task is not None:
