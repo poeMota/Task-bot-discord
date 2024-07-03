@@ -31,7 +31,7 @@ def add_members_commands(bot: disnake.Client):
         name = "изменить-статистику",
         description = "Изменить статистику пользователя."
     )
-    async def change_folder(
+    async def change_member_stat(
         inter: disnake.CommandInteraction,
         mem: disnake.Member = commands.Param(
             name='пользователь',
