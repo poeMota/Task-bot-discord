@@ -143,7 +143,7 @@ def add_task_commands(bot: disnake.Client):
                     Logger.low(inter, f"последний сейв заказа {task.name} - {path}")
                 else:
                     task.set_last_save(task.lastSave)
-                await inter.edit_original_message(content=f"**Последний сейв**: {task.lastSave}")
+                await inter.edit_original_message(content=f"**Последний сейв**: ```{task.lastSave if task.lastSave != "" else "не указан"}```")
                 return
         
         await inter.edit_original_message(content="Вы не находитесь в ветке активного заказа для выполения данной команды.")
