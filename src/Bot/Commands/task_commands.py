@@ -164,6 +164,32 @@ def add_task_commands(bot: disnake.Client):
         await inter.edit_original_message(content="Вы не находитесь в ветке активного заказа для выполения данной команды.")
 
 
+    @bot.slash_command(
+        name="изменить-таск",
+        description="Изменить параметры таска."
+    )
+    async def task_change(
+        inter: disnake.CommandInteraction,
+        param: str = commands.Param(
+            name="параметр",
+            choices=["макс. участников"]
+        ),
+        value: int = commands.Param(
+            name="значение",
+            description="новое значение параметра"
+        )):
+        await inter.response.defer(ephemeral=True)
+        if isinstance(inter.channel, disnake.Thread) and isinstance(inter.channel.parent, disnake.ForumChannel):
+            task: Task = await bot.get_task_by_thread(inter.channel)
+            if task is not None:
+                if param == "макс. участников":
+                    task.maxMembers = value
+                    task.update()
+                    await inter.edit_original_response(content="**Done**")
+                    return
+        
+        await inter.edit_original_message(content="Вы не находитесь в ветке активного заказа для выполения данной команды.")
+
 # region Task End
 maxPage = 6 # Max members on page
 

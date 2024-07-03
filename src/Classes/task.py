@@ -2,6 +2,7 @@ import asyncio
 import disnake
 from datetime import datetime
 
+from src.Logger import *
 from src.Config import *
 import src.Classes as Classes
 
@@ -115,6 +116,7 @@ class Task:
     def update(self):
         self.score, self.maxMembers = self.get_settings()
         self.write_task()
+        Logger.debug(f"обновлён заказ {self.name}")
 
 
     def on_leave(self, member):
@@ -145,6 +147,7 @@ class Task:
             color=0xf1c40f,
             type="rich"
         )
+        embed.add_field(name="очков за выполнение:", value=self.score, inline=False)
         if self.lastSave != "": embed.add_field(name="последний сейв:", value=self.lastSave, inline=False)
         if self.brigadire is not None: embed.add_field(name="бригадир:", value=f"- <@{self.brigadire.member.id}>", inline=False)
         text = ""
