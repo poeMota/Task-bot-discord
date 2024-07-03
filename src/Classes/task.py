@@ -34,6 +34,7 @@ class Task:
             self.members = []
             self.startDate = datetime.now().strftime(self.timeFormat)
             self.lastSave = ""
+            self._maxMembers = 0
             self.maxMembers = 0
 
             self.read_task()
@@ -51,7 +52,7 @@ class Task:
             self.write_task()
             return
 
-        self.score, self.name, self.url, self.thread, self.brigadire, self.startDate, self.lastSave, self.maxMembers = (
+        self.score, self.name, self.url, self.thread, self.brigadire, self.startDate, self.lastSave, self._maxMembers, self.maxMembers = (
             0 if "score_modifier" not in project_data[self.project.name]["tasks"][str(self.id)] 
                 else project_data[self.project.name]["tasks"][str(self.id)]["score_modifier"],
 
@@ -72,6 +73,9 @@ class Task:
 
             "" if "last_save" not in project_data[self.project.name]["tasks"][str(self.id)]
                 else project_data[self.project.name]["tasks"][str(self.id)]["last_save"],
+
+            0 if "@max_members" not in project_data[self.project.name]["tasks"][str(self.id)]
+                else project_data[self.project.name]["tasks"][str(self.id)]["@max_members"],
 
             0 if "max_members" not in project_data[self.project.name]["tasks"][str(self.id)]
                 else project_data[self.project.name]["tasks"][str(self.id)]["max_members"]
@@ -104,6 +108,7 @@ class Task:
             "members": members,
             "start_date": self.startDate,
             "last_save": self.lastSave,
+            "@max_members": self._maxMembers,
             "max_members": self.maxMembers
         }
         json_write("projects", project_data)
@@ -114,7 +119,8 @@ class Task:
 
 
     def update(self):
-        self.score, self.maxMembers = self.get_settings()
+        if self._maxMembers == 0:
+            self.score, self.maxMembers = self.get_settings()
         self.write_task()
         Logger.debug(f"обновлён заказ {self.name}")
 

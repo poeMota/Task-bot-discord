@@ -183,7 +183,7 @@ def add_task_commands(bot: disnake.Client):
             task: Task = await bot.get_task_by_thread(inter.channel)
             if task is not None:
                 if param == "макс. участников":
-                    task.maxMembers = value
+                    task._maxMembers = value
                     task.update()
                     await inter.edit_original_response(content="**Done**")
                     return
