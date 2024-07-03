@@ -221,3 +221,8 @@ class Task:
     def set_last_save(self, save):
         self.lastSave = save
         self.update()
+    
+    def set_max_members(self, maxMem: int):
+        self._maxMembers = maxMem
+        self.maxMembers = maxMem
+        self.update()
