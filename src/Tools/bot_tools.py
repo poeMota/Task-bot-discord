@@ -39,7 +39,10 @@ def embed_from_dict(title: str, description: str, color: int, D: dict, showHidde
         else:
             name = key
             value = D[key]
-
+        
+        if len(value) > 1024:
+            value = value[-1024:-1] + value[-1]
+        
         embed.add_field(
             name=name.replace("@", ""),
             value=value,
