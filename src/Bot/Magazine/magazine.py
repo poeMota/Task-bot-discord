@@ -87,8 +87,8 @@ class Magazine:
                 access= ["стажер-маппер"],
                 not_access= ["+"],
                 add_roles= ["+"],
-                channel= 1181543849580052490, # Secret channel
-                text= f"<@&1181535312304951296>, нужно выдать Стажера+ на песке <@{inter.author.id}>."
+                secretLog= True,
+                text= f"<@&1181535312304951296>, нужно выдать Стажера+ на песке для <@{inter.author.id}>."
             ),
             Page(
                 name= "Повышение",
@@ -99,8 +99,8 @@ class Magazine:
                 not_access= ["маппер"],
                 add_roles= ["маппер"],
                 rem_roles= ["стажер-маппер", "+"],
-                channel= 1181543849580052490, # Secret channel
-                text= f"<@&1181535312304951296>, нужно выдать Маппера на песке <@{inter.author.id}>."
+                secretLog= True,
+                text= f"<@&1181535312304951296>, нужно выдать Маппера на песке для <@{inter.author.id}>."
             ),
             Page(
                 name= "Мут агоичи",
@@ -117,7 +117,7 @@ class Magazine:
                 description="Вы можете пригласить своего друга на песок ||никакого блата||! Человек, которого вы хотите пригласить получит доступ на песок с базовыми правами (агост и спавн).",
                 price=20,
                 on_buy=[send],
-                channel= 1181543849580052490, # Secret channel
+                secretLog= True,
                 text= f"<@&1181535312304951296>, <@{inter.author.id}> хочет пригласить пупика на песок."
             ),
             Page(
@@ -126,7 +126,7 @@ class Magazine:
                 "Ревью будет включать в себя проверку на соблюдение всех стандартов маппинга, указание на все недочёты и советы по улучшению.",
                 price=10,
                 on_buy= [send],
-                channel= 1181543849580052490, # Secret channel
+                secretLog= True,
                 text= f"<@&1181535312304951296>, работать, <@{inter.author.id}> заказал ревью!"
             ),
             Page(
@@ -231,6 +231,8 @@ async def mute(inter: disnake.AppCommandInteraction, kwargs):
 
 
 async def send(inter: disnake.AppCommandInteraction, kwargs):
+    if "secretLog" in kwargs and kwargs["secretLog"] == True:
+        Logger.secret(None, kwargs["text"])
     if "channel" in kwargs:
         channel: disnake.TextChannel = utils.get(inter.guild.channels, id=int(kwargs["channel"]))
         if channel is not None:

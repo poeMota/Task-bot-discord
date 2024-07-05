@@ -27,7 +27,7 @@ def add_stat_commands(bot: disnake.Client):
             description="пользователь, статистику которого нужно получить."
         )):
         await inter.send(embed=Member(disMember).stat_embed(showHidden=True), ephemeral=True)
-        Logger.medium(inter, "просмотрена статистика в режиме модератора")
+        Logger.medium(inter, f"просмотрена статистика {disMember.name} в режиме модератора")
     
 
     @bot.slash_command(
@@ -54,7 +54,9 @@ def add_stat_commands(bot: disnake.Client):
         member.update()
 
         await inter.edit_original_message(content="**Done**")
-        Logger.high(inter, f'выдано предупреждение "**{text}**" по правилу **{rule}** для пользователя **{_member.name}**')
+        _text = f'выдано предупреждение "**{text}**" по правилу **{rule}** для пользователя **{_member.name}**'
+        Logger.high(inter, _text)
+        Logger.secret(inter, _text)
     
 
     @bot.slash_command(
@@ -77,4 +79,6 @@ def add_stat_commands(bot: disnake.Client):
         member.update()
 
         await inter.edit_original_message(content="**Done**")
-        Logger.high(inter, f'выдана заметка "**{text}**" для пользователя **{_member.name}**')
+        _text = f'выдана заметка "**{text}**" для пользователя **{_member.name}**'
+        Logger.high(inter, _text)
+        Logger.secret(inter, _text)

@@ -13,7 +13,9 @@ def add_events(bot: disnake.Client):
     @bot.event
     async def on_ready():
         [Project(bot, name) for name in get_projects()]
+        guild: disnake.Guild = bot.guild()
         Logger.logChannel = await bot.fetch_channel(from_toml("config", "log"))
+        Logger.secretLogThread = utils.get(guild.threads, id=from_toml("config", "secret_log_thread"))
 
         subChannel: disnake.TextChannel = await bot.fetch_channel(from_toml("config", "subscribe_channel"))
         try:
@@ -32,7 +34,7 @@ def add_events(bot: disnake.Client):
 
     @bot.event
     async def on_member_join(member):
-        guild = bot.guild()
+        guild: disnake.Guild = bot.guild()
         role = utils.get(guild.roles, id=from_toml("config", "guest_role"))
         await member.add_roles(role)
 
@@ -117,9 +119,16 @@ def add_events(bot: disnake.Client):
 
     @bot.event
     async def on_member_update(before: disnake.Member, after: disnake.Member):
+        if before.roles == after.roles:
+            return
+        
         _roles = []
         for role in after.roles:
             if role not in before.roles:
+                _roles.append(role)
+
+        for role in before.roles:
+            if role not in after.roles:
                 _roles.append(role)
         
         for projectName in get_projects():

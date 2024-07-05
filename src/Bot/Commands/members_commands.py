@@ -40,7 +40,7 @@ def add_members_commands(bot: disnake.Client):
         param: str = commands.Param(
             name="парамерт",
             description="что в статистике нужно изменить.",
-            choices=["выполненные заказы", "курирование заказов"]
+            choices=["выполненные заказы", "курирование заказов", "заметки", "предупреждения"]
         ),
         mode: str = commands.Param(
             name="режим",
@@ -63,10 +63,22 @@ def add_members_commands(bot: disnake.Client):
                 member.curationTasks.append(value)
             else:
                 member.curationTasks = member.rem_from_stat(member.curationTasks, value)
+        elif param == "заметки":
+            if mode == "добавить":
+                member.notes.append(value)
+            else:
+                member.notes = member.rem_from_stat(member.notes, value)
+                Logger.secret(inter, f'удалена заметка "{value}" пользователя <@{mem.id}>')
+        elif param == "предупреждения":
+            if mode == "добавить":
+                member.warns.append(value)
+            else:
+                member.warns = member.rem_from_stat(member.warns, value)
+                Logger.secret(inter, f'удалено предепреждение "{value}" пользователя <@{mem.id}>')
 
         member.update()
         await inter.send(content="**Done**", ephemeral=True)
-        Logger.medium(inter, f"изменена статистика пользователя {mem.name}")
+        Logger.medium(inter, f"изменена статистика пользователя {mem.name}, параметр: {param}")
 
 
     @bot.slash_command(

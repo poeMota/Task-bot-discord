@@ -9,31 +9,40 @@ class Levels(enum.Enum):
     Medium = "**[Medium]**"
     Low = "[Low]"
     Debug = "[Debug]"
+    Secret = "**[Оповещение]**"
 
 
 class Logger:
     logChannel: disnake.TextChannel = None
+    secretLogThread: disnake.Thread = None
 
     @staticmethod
-    def log(level: Levels, text: str, inter: disnake.AppCommandInteraction = None):
+    def log(level: Levels, text: str, channel: disnake.TextChannel | disnake.Thread, inter: disnake.AppCommandInteraction = None):
+        if not isinstance(channel, (disnake.TextChannel, disnake.Thread)):
+            return
+
         loop = asyncio.get_event_loop()
         if inter is not None:
-            loop.create_task(Logger.logChannel.send(f"{level.value} ({datetime.now().strftime("%Y-%m-%d %H:%M")}) <{inter.author.name}>: {text}"))
+            loop.create_task(channel.send(f"{level.value} ({datetime.now().strftime("%Y-%m-%d %H:%M")}) <{inter.author.name}>: {text}"))
         else:
-            loop.create_task(Logger.logChannel.send(f"{level.value} ({datetime.now().strftime("%Y-%m-%d %H:%M")}) <система>: {text}"))
+            loop.create_task(channel.send(f"{level.value} ({datetime.now().strftime("%Y-%m-%d %H:%M")}) <система>: {text}"))
 
     @staticmethod
     def low(inter, text: str):
-        Logger.log(Levels.Low, text, inter)
+        Logger.log(Levels.Low, text, Logger.logChannel, inter)
 
     @staticmethod
     def medium(inter, text: str):
-        Logger.log(Levels.Medium, text, inter)
+        Logger.log(Levels.Medium, text, Logger.logChannel, inter)
 
     @staticmethod
     def high(inter, text: str):
-        Logger.log(Levels.High, text, inter)
+        Logger.log(Levels.High, text, Logger.logChannel, inter)
 
     @staticmethod
     def debug(text: str):
-        Logger.log(Levels.Debug, text)
+        Logger.log(Levels.Debug, text, Logger.logChannel)
+
+    @staticmethod
+    def secret(inter, text: str):
+        Logger.log(Levels.Secret, text, Logger.secretLogThread, inter)
