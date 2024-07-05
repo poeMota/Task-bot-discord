@@ -68,13 +68,13 @@ def add_members_commands(bot: disnake.Client):
                 member.notes.append(value)
             else:
                 member.notes = member.rem_from_stat(member.notes, value)
-                Logger.secret(inter, f'удалена заметка "{value}" пользователя <@{mem.id}>')
+                Logger.secret(inter, f'удалена заметка "{value}" пользователя {mem.name}')
         elif param == "предупреждения":
             if mode == "добавить":
                 member.warns.append(value)
             else:
                 member.warns = member.rem_from_stat(member.warns, value)
-                Logger.secret(inter, f'удалено предепреждение "{value}" пользователя <@{mem.id}>')
+                Logger.secret(inter, f'удалено предепреждение "{value}" пользователя {mem.id}')
 
         member.update()
         await inter.send(content="**Done**", ephemeral=True)
