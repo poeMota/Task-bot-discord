@@ -192,7 +192,7 @@ def add_task_commands(bot: disnake.Client):
         await inter.edit_original_message(content="Вы не находитесь в ветке активного заказа для выполения данной команды.")
 
 # region Task End
-maxPage = 6 # Max members on page
+maxPage = 4 # Max members on page
 
 
 class TaskWorksTypes(enum.Enum): # TODO: move this to config
