@@ -96,9 +96,9 @@ def add_save_commands(bot: disnake.Client):
             description="путь до сейва относительно личной папки.",
             default=""
         )):
-        if path == "":
+        member = Member(inter.author)
+        if path == "" and not member.folder_is_empty():
             await inter.response.defer(ephemeral=True)
-            member = Member(inter.author)
             await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView([member.ownFolder + '/']))
             return
         
@@ -113,8 +113,14 @@ def add_save_commands(bot: disnake.Client):
         inter: disnake.AppCommandInteraction,
         path: str = commands.Param(
             name="путь",
-            description="путь до сейва."
+            description="путь до сейва.",
+            default=""
         )):
+        if path == "":
+            await inter.response.defer(ephemeral=True)
+            await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView([]))
+            return
+        
         await unload_save(inter, path, False)
 
 
@@ -124,7 +130,7 @@ def add_save_commands(bot: disnake.Client):
             self.path = path
             options = []
             for _dir in getDirs("".join(self.path)):
-                if '../' in _dir and len(self.path) <= 1:
+                if ('../' in _dir and len(self.path) <= 1) or len(options) == 25:
                     continue
                 options.append(disnake.SelectOption(
                     label=_dir,
