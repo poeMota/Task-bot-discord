@@ -52,4 +52,4 @@ def env(key):
 
 
 def get_data_path():
-    return os.getcwd() + '/data/'
+    return script_dir + '/data/'
