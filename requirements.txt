@@ -5,3 +5,4 @@ disnake
 requests
 python-dotenv
 toml==0.10.2
+bs4

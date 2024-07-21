@@ -5,7 +5,7 @@ from disnake.ext import commands
 from src.Logger import *
 from src.Classes import Member
 from src.Config import get_data_path
-from src.Connect import unload
+from src.Connect import unload, getDirs
 
 
 def add_save_commands(bot: disnake.Client):
@@ -49,10 +49,7 @@ def add_save_commands(bot: disnake.Client):
 
     async def unload_save(
         inter: disnake.AppCommandInteraction,
-        path: str = commands.Param(
-            name="путь",
-            description="путь до сейва относительно личной папки."
-        ),
+        path: str,
         fromFolder: bool = True
         ):
         await inter.response.defer(ephemeral=True)
@@ -68,11 +65,21 @@ def add_save_commands(bot: disnake.Client):
                 await inter.send(content='Недопустимый символ ".." в пути к файлу.', ephemeral=True)
                 return
 
-            unload(url=path, folder=member.ownFolder)
-            Logger.low(inter, f"скачан сейв по пути /{member.ownFolder}/{path}")
+            try:
+                unload(url=path, folder=member.ownFolder)
+                Logger.low(inter, f"скачан сейв по пути /{member.ownFolder}/{path}")
+            except IsADirectoryError as e:
+                await inter.edit_original_message(content=f"**[Ошибка]** Вы питаетесь скачать папку, а не файл, проверьте правильность указанного вами пути.")
+                Logger.high(inter, f"ошибка при скачивании сейва по пути {path}: {repr(e)}")
+                return
         else:
-            unload(url=path)
-            Logger.medium(inter, f"скачан сейв по пути {path}")
+            try:
+                unload(url=path)
+                Logger.medium(inter, f"скачан сейв по пути {path}")
+            except IsADirectoryError as e:
+                await inter.edit_original_message(content=f"**[Ошибка]** Вы питаетесь скачать папку, а не файл, проверьте правильность указанного вами пути.")
+                Logger.high(inter, f"ошибка при скачивании сейва по пути {path}: {repr(e)}")
+                return
 
         await inter.edit_original_message(file=disnake.File(full_path))
         os.remove(full_path)
@@ -86,8 +93,15 @@ def add_save_commands(bot: disnake.Client):
         inter: disnake.AppCommandInteraction,
         path: str = commands.Param(
             name="путь",
-            description="путь до сейва относительно личной папки."
+            description="путь до сейва относительно личной папки.",
+            default=""
         )):
+        if path == "":
+            await inter.response.defer(ephemeral=True)
+            member = Member(inter.author)
+            await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView([member.ownFolder + '/']))
+            return
+        
         await unload_save(inter, path)
 
 
@@ -102,3 +116,43 @@ def add_save_commands(bot: disnake.Client):
             description="путь до сейва."
         )):
         await unload_save(inter, path, False)
+
+
+# region View
+    class SaveDropdown(disnake.ui.StringSelect):
+        def __init__(self, path: list[str]):
+            self.path = path
+            options = []
+            for _dir in getDirs("".join(self.path)):
+                if '../' in _dir and len(self.path) <= 1:
+                    continue
+                options.append(disnake.SelectOption(
+                    label=_dir,
+                    value=_dir
+                ))
+
+            super().__init__(
+                placeholder=f"Выберите путь до файла.",
+                min_values=1,
+                max_values=1,
+                options=options,
+            )
+
+        async def callback(self, inter: disnake.MessageInteraction):
+            value = inter.values[0]
+            _path = list(self.path)
+            if '../' not in value: _path += [value]
+            elif '../' in value: del _path[-1]
+
+            if ".yml" in value:
+                await unload_save(inter, "".join(_path))
+                return
+
+            await inter.send(view=DropDownView(_path), ephemeral=True)
+
+
+    class DropDownView(disnake.ui.View):
+        def __init__(self, path: list[str]):
+            super().__init__()
+            self.add_item(SaveDropdown(path))
+# endregion
