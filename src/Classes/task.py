@@ -115,7 +115,7 @@ class Task:
     
 
     def __str__(self) -> str:
-        return f"**заказ**: {self.name} #{self.id}\n  **ветка**: {self.url}"
+        return f"**заказ**: {self.name} #{self.id}\nㅤ**ветка**: {self.url}"
 
 
     def update(self):

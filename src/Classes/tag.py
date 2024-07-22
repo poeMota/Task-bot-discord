@@ -36,7 +36,7 @@ class Tag:
         if self.tagType is TagTypes.difficult:
             return f"**тег**: {self.tag.emoji}{self.tag.name}\nㅤ**тип**: {self.tagType}\nㅤ**очки**: {self.scoreModifier}\nㅤ**задаёт макс. членов**: {self.maxMembers}"
         elif self.tagType is TagTypes.ping:
-            return f"**тег**: {self.tag.emoji}{self.tag.name}\nㅤ**тип**: {self.tagType}\nㅤ**пингует**: {self.ping.id}"
+            return f"**тег**: {self.tag.emoji}{self.tag.name}\nㅤ**тип**: {self.tagType}\nㅤ**пингует**: <@&{self.ping.id}>"
         else:
             return f"**тег**: {self.tag.emoji}{self.tag.name}\nㅤ**тип**: {self.tagType}"
 
