@@ -2,8 +2,9 @@ import disnake
 from disnake.ext import commands
 
 import src.Events as Events
+from src.Config import *
 from src.Classes import Project, TagTypes, Tag
-from src.Tools import get_projects
+from src.Tools import get_projects, data_files
 from src.Logger import *
 
 
@@ -264,3 +265,46 @@ def add_config_commands(bot: commands.InteractionBot):
         if role is not None: bot.subPost.add_role(categorie, emoji, text, role)
         else: bot.subPost.rem_role(categorie, emoji)
         await inter.send(content="**Done**", ephemeral=True)
+
+
+    @bot.slash_command(
+        name="скачать-конфиг-файл",
+        description="скачать конфиг файл бота"
+    )
+    async def unload_config(
+        inter: disnake.ApplicationCommandInteraction,
+        configFile: str = commands.Param(
+            name="файл",
+            description="название файла, который нужно скачать",
+            choices=data_files()
+        )):
+        await inter.response.defer(ephemeral=True)
+        await Logger.medium(inter, f"скчан файл конфига \"{configFile}\"")
+        await inter.edit_original_message(file=disnake.File(get_data_path() + configFile))
+    
+
+    @bot.slash_command(
+        name="загрузить-конфиг-файл",
+        description="загрузить файл в постоянное хранилище бота"
+    )
+    async def upload_config(
+        inter: disnake.ApplicationCommandInteraction,
+        fileToUpload: disnake.Attachment = commands.Param(
+            name="файл",
+            description="файл, который нужно загрузить"
+        )):
+        await inter.response.defer(ephemeral=True)
+        with open(get_data_path() + fileToUpload.filename, "wb") as f:
+            f.write(await fileToUpload.read())
+            Logger.high(inter, f"загружен файл {fileToUpload.filename} в постоянное хранилище бота")
+        await inter.edit_original_message(content="**Done**")
+        await bot.restart()
+    
+
+    @bot.slash_command(
+        name="reboot"
+    )
+    async def reboot(inter: disnake.ApplicationCommandInteraction):
+        await inter.response.defer(ephemeral=True)
+        await bot.restart()
+        await inter.edit_original_message(content="**Done**")

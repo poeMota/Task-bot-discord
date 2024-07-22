@@ -6,6 +6,7 @@ from disnake.ext import commands
 import src.Events as Events
 from src.Classes import Member, Task
 from src.Logger import *
+from src.Config import *
 
 
 def add_task_commands(bot: disnake.Client):
@@ -74,7 +75,7 @@ def add_task_commands(bot: disnake.Client):
                 task._endingResult = {}
                 if task.brigadire is not None: 
                     task._endingResult[task.brigadire] = int(task.score * 2) # TODO: move this to config
-                for i in range(math.ceil(len(task.members) / maxPage)):
+                for i in range(math.ceil(len(task.members) / from_toml("config", "max_dropdowns_per_message"))):
                     await inter.send(view=DropDownView(task, i), ephemeral=True)
                 await inter.edit_original_message(f"Оцените работу участников таска:")
                 Logger.high(inter, f"закрыт заказ {task.name}")
@@ -192,9 +193,6 @@ def add_task_commands(bot: disnake.Client):
         await inter.edit_original_message(content="Вы не находитесь в ветке активного заказа для выполения данной команды.")
 
 # region Task End
-maxPage = 4 # Max members on page
-
-
 class TaskWorksTypes(enum.Enum): # TODO: move this to config
     veryGood = ["Отлично работал", "2"]
     good = ["Хорошо работал", "1.5"]
@@ -261,6 +259,7 @@ class EndTaskDropdown(disnake.ui.StringSelect):
 class DropDownView(disnake.ui.View):
     def __init__(self, task: Task, page: int):
         super().__init__()
+        maxPage = from_toml("config", "max_dropdowns_per_message") # Max members on page
         for member in task.members[page * maxPage: page * maxPage + maxPage]:
             if member != task.brigadire: self.add_item(EndTaskDropdown(task, member.member, page))
 # endregion

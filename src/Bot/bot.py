@@ -2,6 +2,7 @@ import disnake
 from disnake.ext import commands
 from disnake import utils
 
+from src.Logger import *
 from src.Config import *
 from src.Classes import Project, Task, Member, SubscribePost
 from src.Tools import get_projects
@@ -72,4 +73,26 @@ class Bot(commands.InteractionBot):
                 return project.get_task_by_thread(thread)
             
         return None
+    
+
+    async def restart(self):
+        Logger.debug(f"перезапуск бота...")
+        for name in get_projects():
+            try:
+                project = Project(self, name)
+                await project.read_project_info()
+                Logger.debug(f"обновлён проект {name}")
+                for task in project.tasks:
+                    try:
+                        if isinstance(task, Task):
+                            task.read_task()
+                            Logger.debug(f"обновлён заказ {task.name}")
+                    except Exception as e:
+                        Logger.debug(f"Ошибка при обновлении заказа {task.name} - {repr(e)}, завершаем перезапуск")
+                        return
+            except Exception as e:
+                Logger.debug(f"ошибка при обновлении проекта {name} - {repr(e)}, завершаем перезапуск")
+                return
+        self.subPost.update()
+        Logger.debug("бот успешно перезапущен")
     # endregion

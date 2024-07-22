@@ -202,7 +202,7 @@ class Project:
             "канал статистики": f"<#{self.statChannel.id}>",
             "роли проекта": [f"<@&{role.id}>" for role in self.associatedRoles],
             "теги": [str(tag) for tag in self.tags],
-            "таски": [str(task) for task in self.tasks]
+            "таски": [str(task) for task in self.tasks.values()]
         },
         showHidden=True)
 
