@@ -237,4 +237,4 @@ async def send(inter: disnake.AppCommandInteraction, kwargs):
         channel: disnake.TextChannel = utils.get(inter.guild.channels, id=int(kwargs["channel"]))
         if channel is not None:
             await channel.send(kwargs["text"])
-    else: await inter.channel.send(kwargs["text"])
+    elif "secretLog" not in kwargs: await inter.channel.send(kwargs["text"])
