@@ -6,6 +6,7 @@ from src.Config import *
 from src.Classes import Project, TagTypes, Tag
 from src.Tools import get_projects, data_files
 from src.Logger import *
+from src.Connect import getHWID
 
 
 def add_config_commands(bot: commands.InteractionBot):
@@ -308,3 +309,18 @@ def add_config_commands(bot: commands.InteractionBot):
         await inter.response.defer(ephemeral=True)
         await bot.restart()
         await inter.edit_original_message(content="**Done**")
+    
+
+    @bot.slash_command(
+        name="hwid",
+        description="Получить HWID пользователя"
+    )
+    async def hwid(
+        inter: disnake.ApplicationCommandInteraction,
+        ckey: str = commands.Param(
+            name="ckey",
+            description="ckey пользователя, HWID которого нужно получить"
+        )):
+        await inter.response.defer(ephemeral=True)
+        await inter.edit_original_message(content=f"```{getHWID(ckey)}```")
+        Logger.medium(inter, f"получен HWID по ckey - {ckey}")

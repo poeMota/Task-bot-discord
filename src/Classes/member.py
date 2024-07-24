@@ -136,18 +136,25 @@ class Member:
             description=None,
             color=self.member.roles[-1].color,
             D=self.get_info(),
-            showHidden= showHidden
+            showHidden=showHidden
         )
+    
+
+    def inactivity_days(self):
+        try:
+            return (datetime.now() - datetime.strptime(self.last_activity, "%Y-%m-%d")).days
+        except:
+            return "неизвестно"
     
 
     def stat_post_text(self) -> str:
         show_data = {
             "очки": self.score
             }
-        text = (f"╠︎ **заказов выполененно**: {len(self.doneTasks)}\n" +
-                f"╠︎ **курирование заказов**: {len(self.curationTasks)}\n" +
-                f"╠︎ **в бригадах**: {self.in_brigades_text()}\n" +
-                f"╠︎ **последняя активность**: {self.last_activity}")
+        text = (f"╠︎ **заказов вып.:** {len(self.doneTasks)}\n" +
+                f"╠︎ **курирование:** {len(self.curationTasks)}\n" +
+                f"╠︎ **в бригадах:** {self.in_brigades_text()}\n" +
+                f"╠︎ **активность:** {self.inactivity_days()} дней назад")
 
         for key in show_data:
             char = "╠︎"
@@ -168,6 +175,7 @@ class Member:
         return text
 
 
+    # TODO: delete this
     def _last_activity(self):
         format = "%Y-%m-%d"
         last_curation, last_task = None, None

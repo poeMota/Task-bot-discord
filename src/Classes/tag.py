@@ -1,9 +1,8 @@
 import disnake
 import enum
 
-from src.EventManager import Event
 from src.Config import *
-import src.Events as Events
+
 
 class Tag:
     _instances = {}

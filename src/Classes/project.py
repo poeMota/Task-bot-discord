@@ -226,7 +226,7 @@ class Project:
                     last_role = role
             if last_role is not None:
                 member = Classes.Member(disMember)
-                embeds[last_role].add_field(name=disMember.name, value=member.stat_post_text())
+                embeds[last_role].add_field(name=disMember.display_name, value=member.stat_post_text())
 
         return embeds
     
