@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 
 from src.Config import script_dir, env
-from ast import literal_eval
 
 def unload(url: str, folder="", write=True):
     url = url.removeprefix("/").replace("//", '/')

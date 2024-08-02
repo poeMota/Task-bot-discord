@@ -55,7 +55,8 @@ def add_events(bot: disnake.Client):
             member = Member(payload.member)
             if task is not None and member not in task.members:
                 if (len(member.inTasks) < task.project.maxBrigPerUser
-                    and len(task.members) < task.maxMembers):
+                    and len(task.members) < task.maxMembers
+                    and task.project.member_in_project(member)):
                     if task not in member.inTasks and task.url not in member.inTasks:
                         member.join_task(task)
                         await thread.send(content=f"<@{payload.member.id}> присоединился в бригаду.")

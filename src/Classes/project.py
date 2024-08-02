@@ -187,6 +187,13 @@ class Project:
     def end_task(self, task):
         del self.tasks[task.id]
         self.write_project_info()
+
+    
+    def member_in_project(self, member):
+        for role in member.member.roles:
+            if role in self.associatedRoles:
+                return True
+        return False
     
 
     def config_embed(self):
