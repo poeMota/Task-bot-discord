@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from src.Config import script_dir, env
 
 def unload(url: str, folder="", write=True):
-    url = url.removeprefix("/").replace("//", '/')
+    url = url.removeprefix("/").replace("//", '/').replace(' ', "%C2%A0")
     if ".." in url.split("/"): return
     if folder in url.split("/"):
         url = url.removeprefix(folder)
