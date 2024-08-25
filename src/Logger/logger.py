@@ -55,7 +55,7 @@ class Logger:
     
     @staticmethod
     def tofile(text: str, level: Levels = Levels.Debug, prefix: bool = True):
-        if not Path(get_data_path() + "logs").is_dir:
+        if not Path(get_data_path() + "logs").is_dir():
             os.mkdir(get_data_path() + "logs")
         with open(get_data_path() + f"logs/{datetime.now().strftime("%Y-%m-%d")}-log.txt", 'a', encoding="utf8") as f:
             f.write(f"{level.value} ({datetime.now().strftime("%Y-%m-%d %H:%M")}) <система>: {text}\n" if prefix else f'{text}\n')
