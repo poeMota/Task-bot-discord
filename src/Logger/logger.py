@@ -2,6 +2,10 @@ from datetime import datetime
 import enum
 import asyncio
 import disnake
+import os
+from pathlib import Path
+
+from src.Config import get_data_path
 
 
 class Levels(enum.Enum):
@@ -23,9 +27,11 @@ class Logger:
 
         loop = asyncio.get_event_loop()
         if inter is not None:
-            loop.create_task(channel.send(f"{level.value} ({datetime.now().strftime("%Y-%m-%d %H:%M")}) <{inter.author.name}>: {text}"))
+            _text = f"{level.value} ({datetime.now().strftime("%Y-%m-%d %H:%M")}) <{inter.author.name}>: {text}"
         else:
-            loop.create_task(channel.send(f"{level.value} ({datetime.now().strftime("%Y-%m-%d %H:%M")}) <система>: {text}"))
+            _text = f"{level.value} ({datetime.now().strftime("%Y-%m-%d %H:%M")}) <система>: {text}"
+        loop.create_task(channel.send(_text))
+        Logger.tofile(_text.replace('**', ''), prefix=False)
 
     @staticmethod
     def low(inter, text: str):
@@ -46,3 +52,10 @@ class Logger:
     @staticmethod
     def secret(inter, text: str):
         Logger.log(Levels.Secret, text, Logger.secretLogThread, inter)
+    
+    @staticmethod
+    def tofile(text: str, level: Levels = Levels.Debug, prefix: bool = True):
+        if not Path(get_data_path() + "logs").is_dir:
+            os.mkdir(get_data_path() + "logs")
+        with open(get_data_path() + f"logs/{datetime.now().strftime("%Y-%m-%d")}-log.txt", 'a', encoding="utf8") as f:
+            f.write(f"{level.value} ({datetime.now().strftime("%Y-%m-%d %H:%M")}) <система>: {text}\n" if prefix else f'{text}\n')
