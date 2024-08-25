@@ -1,5 +1,6 @@
 import json
 import toml
+import yaml
 import os
 import io
 import sys
@@ -43,6 +44,24 @@ def from_toml(file, tag):
 def toml_write(file, content):
     with io.open(get_data_path() + f"{file}.toml", "w", encoding="utf8") as toml_file:
         toml.dump(content, toml_file)
+# endregion
+
+
+# region YAML
+def yaml_read(file):
+    with io.open(get_data_path() + f"{file}.yml", "r", encoding="utf8") as yaml_file:
+        yaml_data = yaml.load(yaml_file, Loader=yaml.FullLoader)
+    return yaml_data
+
+
+def from_yaml(file, tag):
+    yaml_data = yaml_read(file)
+    return yaml_data[tag]
+
+
+def yaml_write(file, content):
+    with io.open(get_data_path() + f"{file}.yml", "w", encoding="utf8") as yaml_file:
+        yaml.dump(content, yaml_file, indent=2)
 # endregion
 
 
