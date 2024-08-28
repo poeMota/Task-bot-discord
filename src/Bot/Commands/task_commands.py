@@ -98,6 +98,10 @@ def add_task_commands(bot: disnake.Client):
                 if task.brigadire is None:
                     member = Member(inter.author)
                     task.set_brigadire(member)
+                    
+                    if member not in task.mambers:
+                        member.join_task(task)
+
                     await task.thread.send(f"<@{member.member.id}> стал бригадиром заказа.")
                     await inter.edit_original_message(content="**Done**")
                     Logger.high(inter, f"стал бригадиром заказа {task.name}")
