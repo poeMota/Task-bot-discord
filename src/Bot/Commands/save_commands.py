@@ -83,6 +83,26 @@ def add_save_commands(bot: disnake.Client):
 
         await inter.edit_original_message(file=disnake.File(full_path))
         os.remove(full_path)
+    
+
+    async def unload_dropdown_save(
+            inter: disnake.AppCommandInteraction,
+            path: str,
+            fromFolder: bool = True
+            ):
+            if fromFolder:
+                member = Member(inter.author)
+                if not member.folder_is_empty():
+                    await inter.response.defer(ephemeral=True)
+                    await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView([f"{member.ownFolder}/{path.strip()}"]))
+                    return
+                else:
+                    await inter.send(content="Вы не привязали личную папку, чтобы скачивать сейвы, пропишите команду /привязать-папку.", ephemeral=True)
+                    return
+            else:
+                await inter.response.defer(ephemeral=True)
+                await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView([path.strip()]))
+                return
 
 
     @bot.slash_command(
@@ -96,11 +116,8 @@ def add_save_commands(bot: disnake.Client):
             description="путь до сейва относительно личной папки.",
             default=""
         )):
-        member = Member(inter.author)
-        if path == "" and not member.folder_is_empty():
-            await inter.response.defer(ephemeral=True)
-            await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView([member.ownFolder + '/']))
-            return
+        if path.strip() or path.endswith("/"):
+            await unload_dropdown_save(inter, path)
         
         await unload_save(inter, path)
 
@@ -116,10 +133,8 @@ def add_save_commands(bot: disnake.Client):
             description="путь до сейва.",
             default=""
         )):
-        if path == "":
-            await inter.response.defer(ephemeral=True)
-            await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView([]))
-            return
+        if path.strip() or path.endswith("/"):
+            await unload_dropdown_save(inter, path, False)
         
         await unload_save(inter, path, False)
 
