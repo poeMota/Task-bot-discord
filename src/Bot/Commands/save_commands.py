@@ -148,7 +148,7 @@ def add_save_commands(bot: disnake.Client):
             self.path = path
             options = []
             for _dir in getDirs("".join(self.path)):
-                if ('..' in _dir and root not in _dir) or len(options) == 25:
+                if ('..' in _dir and root in _dir) or len(options) == 25:
                     continue
                 options.append(disnake.SelectOption(
                     label=_dir,
