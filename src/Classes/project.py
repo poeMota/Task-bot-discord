@@ -216,14 +216,15 @@ class Project:
 
     def project_stat_embed(self):
         embeds = {}
+        nums = {}
         for role in self.associatedRoles:
             embed = Embed(
-                title=f"{role.name} ({len(role.members)})",
                 description="ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ",
                 color=role.color,
                 type="rich"
             )
             embeds[role] = embed
+            nums[role] = 0
 
         guild: disnake.Guild = self.bot.guild()
         for disMember in guild.members:
@@ -231,11 +232,15 @@ class Project:
             for role in disMember.roles:
                 if role in self.associatedRoles:
                     last_role = role
-            if last_role is not None:
-                member = Classes.Member(disMember)
-                embeds[last_role].add_field(name=disMember.display_name, value=member.stat_post_text())
 
-        return embeds
+            if last_role:
+                embeds[last_role].add_field(name=disMember.display_name, value=Classes.Member(disMember).stat_post_text())
+                nums[last_role] += 1
+        
+        for role in nums:
+            embed.title = f"{role.name} ({nums[role]})"
+
+        return { role: embeds[role] for role in embeds if embeds[role].fields }
     
 
     async def send_stat_post(self):
@@ -245,6 +250,7 @@ class Project:
             self.statPost[role] = await self.statChannel.send(embed=embeds[role])
 
         self.write_project_info()
+
 
     def update_stat_post(self, ev: Event):
         if self.inited:
