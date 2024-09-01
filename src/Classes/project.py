@@ -256,7 +256,7 @@ class Project:
         if self.inited:
             loop = asyncio.get_event_loop()
             embeds = self.project_stat_embed()
-            for role in self.associatedRoles:
+            for role in embeds:
                 loop.create_task(
                     self.statPost[role].edit(embed=embeds[role])
                     )
