@@ -96,14 +96,14 @@ def add_save_commands(bot: disnake.Client):
                     await inter.response.defer(ephemeral=True)
                     await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView(
                                                         root=member.ownFolder, 
-                                                        path=[f"{member.ownFolder}/{path.strip()}"]))
+                                                        path=f"{member.ownFolder}/{path.strip()}"))
                 else:
                     await inter.send(content="Вы не привязали личную папку, чтобы скачивать сейвы, пропишите команду /привязать-папку.", ephemeral=True)
             else:
                 await inter.response.defer(ephemeral=True)
                 await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView(
                                                         root="",
-                                                        path=[path.strip()]))
+                                                        path=path.strip()))
 
 
     @bot.slash_command(
@@ -144,12 +144,12 @@ def add_save_commands(bot: disnake.Client):
 
 # region View
     class SaveDropdown(disnake.ui.StringSelect):
-        def __init__(self, root: str, path: list[str]):
+        def __init__(self, root: str, path: str):
             self.root = root
-            self.path = path
+            self.path = f"{path.replace("//", '/').removesuffix('/')}/".split('/')
             options = []
-            for _dir in getDirs("".join(self.path)):
-                if ('..' in _dir and root in _dir) or len(options) == 25:
+            for _dir in getDirs('/'.join(self.path)):
+                if (_dir == '../' and root == self.path[-2]) or len(options) == 25:
                     continue
                 options.append(disnake.SelectOption(
                     label=_dir,
@@ -166,18 +166,18 @@ def add_save_commands(bot: disnake.Client):
         async def callback(self, inter: disnake.MessageInteraction):
             value = inter.values[0]
             _path = list(self.path)
-            if '../' not in value: _path += [value]
-            elif '../' in value: del _path[-1]
+            if value != '../': _path += [value]
+            else: del _path[-2]
 
-            if ".yml" in value:
-                await unload_save(inter, "".join(_path))
+            if not value.endswith('/'):
+                await unload_save(inter, '/'.join(_path))
                 return
 
-            await inter.send(view=DropDownView(self.root, _path), ephemeral=True)
+            await inter.send(view=DropDownView(self.root, '/'.join(_path)), ephemeral=True)
 
 
     class DropDownView(disnake.ui.View):
-        def __init__(self, root: str, path: list[str]):
+        def __init__(self, root: str, path: str):
             super().__init__()
             self.add_item(SaveDropdown(root, path))
 # endregion
