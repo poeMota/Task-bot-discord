@@ -16,6 +16,15 @@ def unload(url: str, folder="", write=True):
     else: return data
 
 
+def isValidUrl(url: str, folder: str = ""):
+    errors = ["404 Not Found"]
+    data = str(unload(url, folder, False))
+    for e in errors:
+        if e in data:
+            return False
+    return True
+
+
 def getDirs(path: str) -> list[str]:
     HTMLdata = unload(url=path, write=False)
     soup = BeautifulSoup(HTMLdata, 'html.parser')

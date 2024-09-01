@@ -5,7 +5,7 @@ from disnake.ext import commands
 from src.Logger import *
 from src.Classes import Member
 from src.Config import get_data_path
-from src.Connect import unload, getDirs
+from src.Connect import *
 
 
 def add_save_commands(bot: disnake.Client):
@@ -57,6 +57,11 @@ def add_save_commands(bot: disnake.Client):
 
         if fromFolder:
             member = Member(inter.author)
+            
+            if not isValidUrl(path.strip(), member.ownFolder):
+                await inter.send(content="**ОШИБКА:** такого пути не существует", ephemeral=True)
+                return
+            
             if member.folder_is_empty():
                 await inter.send(content="Вы не привязали личную папку, чтобы скачивать сейвы, пропишите команду /привязать-папку.", ephemeral=True)
                 return
@@ -67,12 +72,16 @@ def add_save_commands(bot: disnake.Client):
 
             try:
                 unload(url=path, folder=member.ownFolder)
-                Logger.low(inter, f"скачан сейв по пути /{member.ownFolder}/{path}")
+                Logger.low(inter, f"скачан сейв по пути {path}")
             except IsADirectoryError as e:
                 await inter.edit_original_message(content=f"**[Ошибка]** Вы питаетесь скачать папку, а не файл, проверьте правильность указанного вами пути.")
                 Logger.high(inter, f"ошибка при скачивании сейва по пути {path}: {repr(e)}")
                 return
         else:
+            if not isValidUrl(path.strip()):
+                await inter.send(content="**ОШИБКА:** такого пути не существует", ephemeral=True)
+                return
+
             try:
                 unload(url=path)
                 Logger.medium(inter, f"скачан сейв по пути {path}")
@@ -92,6 +101,11 @@ def add_save_commands(bot: disnake.Client):
             ):
             if fromFolder:
                 member = Member(inter.author)
+
+                if not isValidUrl(path.strip(), member.ownFolder):
+                    await inter.send(content="**ОШИБКА:** такого пути не существует", ephemeral=True)
+                    return
+                
                 if not member.folder_is_empty():
                     await inter.response.defer(ephemeral=True)
                     await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView(
@@ -100,6 +114,10 @@ def add_save_commands(bot: disnake.Client):
                 else:
                     await inter.send(content="Вы не привязали личную папку, чтобы скачивать сейвы, пропишите команду /привязать-папку.", ephemeral=True)
             else:
+                if not isValidUrl(path.strip()):
+                    await inter.send(content="**ОШИБКА:** такого пути не существует", ephemeral=True)
+                    return
+
                 await inter.response.defer(ephemeral=True)
                 await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView(
                                                         root="",
