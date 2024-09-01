@@ -145,6 +145,7 @@ def add_save_commands(bot: disnake.Client):
 # region View
     class SaveDropdown(disnake.ui.StringSelect):
         def __init__(self, root: str, path: list[str]):
+            self.root = root
             self.path = path
             options = []
             for _dir in getDirs("".join(self.path)):
@@ -172,7 +173,7 @@ def add_save_commands(bot: disnake.Client):
                 await unload_save(inter, "".join(_path))
                 return
 
-            await inter.send(view=DropDownView(_path), ephemeral=True)
+            await inter.send(view=DropDownView(self.root, _path), ephemeral=True)
 
 
     class DropDownView(disnake.ui.View):
