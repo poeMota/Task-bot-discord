@@ -95,14 +95,11 @@ def add_save_commands(bot: disnake.Client):
                 if not member.folder_is_empty():
                     await inter.response.defer(ephemeral=True)
                     await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView([f"{member.ownFolder}/{path.strip()}"]))
-                    return
                 else:
                     await inter.send(content="Вы не привязали личную папку, чтобы скачивать сейвы, пропишите команду /привязать-папку.", ephemeral=True)
-                    return
             else:
                 await inter.response.defer(ephemeral=True)
                 await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView([path.strip()]))
-                return
 
 
     @bot.slash_command(
@@ -116,8 +113,9 @@ def add_save_commands(bot: disnake.Client):
             description="путь до сейва относительно личной папки.",
             default=""
         )):
-        if path.strip() or path.endswith("/"):
+        if not path.strip() or path.endswith("/"):
             await unload_dropdown_save(inter, path)
+            return
         
         await unload_save(inter, path)
 
@@ -133,8 +131,9 @@ def add_save_commands(bot: disnake.Client):
             description="путь до сейва.",
             default=""
         )):
-        if path.strip() or path.endswith("/"):
+        if not path.strip() or path.endswith("/"):
             await unload_dropdown_save(inter, path, False)
+            return
         
         await unload_save(inter, path, False)
 
