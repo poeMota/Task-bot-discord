@@ -239,8 +239,6 @@ class Project:
         
         for role in nums:
             embeds[role].title = f"{role.name} ({nums[role]})"
-            if nums[role] == 0:
-                del embeds[role]
 
         return embeds
     
