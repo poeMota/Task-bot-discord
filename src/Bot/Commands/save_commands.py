@@ -94,12 +94,16 @@ def add_save_commands(bot: disnake.Client):
                 member = Member(inter.author)
                 if not member.folder_is_empty():
                     await inter.response.defer(ephemeral=True)
-                    await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView([f"{member.ownFolder}/{path.strip()}"]))
+                    await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView(
+                                                        root=member.ownFolder, 
+                                                        path=[f"{member.ownFolder}/{path.strip()}"]))
                 else:
                     await inter.send(content="Вы не привязали личную папку, чтобы скачивать сейвы, пропишите команду /привязать-папку.", ephemeral=True)
             else:
                 await inter.response.defer(ephemeral=True)
-                await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView([path.strip()]))
+                await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView(
+                                                        root="",
+                                                        path=[path.strip()]))
 
 
     @bot.slash_command(
@@ -140,11 +144,11 @@ def add_save_commands(bot: disnake.Client):
 
 # region View
     class SaveDropdown(disnake.ui.StringSelect):
-        def __init__(self, path: list[str]):
+        def __init__(self, root: str, path: list[str]):
             self.path = path
             options = []
             for _dir in getDirs("".join(self.path)):
-                if ('../' in _dir and len(self.path) <= 1) or len(options) == 25:
+                if ('..' in _dir and root not in _dir) or len(options) == 25:
                     continue
                 options.append(disnake.SelectOption(
                     label=_dir,
@@ -172,7 +176,7 @@ def add_save_commands(bot: disnake.Client):
 
 
     class DropDownView(disnake.ui.View):
-        def __init__(self, path: list[str]):
+        def __init__(self, root: str, path: list[str]):
             super().__init__()
-            self.add_item(SaveDropdown(path))
+            self.add_item(SaveDropdown(root, path))
 # endregion
