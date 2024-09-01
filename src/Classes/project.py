@@ -238,9 +238,11 @@ class Project:
                 nums[last_role] += 1
         
         for role in nums:
-            embed.title = f"{role.name} ({nums[role]})"
+            embeds[role].title = f"{role.name} ({nums[role]})"
+            if nums[role] == 0:
+                del embeds[role]
 
-        return { role: embeds[role] for role in embeds if embeds[role].fields }
+        return embeds
     
 
     async def send_stat_post(self):
