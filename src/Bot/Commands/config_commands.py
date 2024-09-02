@@ -46,6 +46,7 @@ def add_config_commands(bot: commands.InteractionBot):
             name='статистика',
             description='Канал, куда будет отправлятся статистика рабочих.'
         )):
+        await inter.response.defer(ephemeral=True)
         if name not in get_projects():
             project = Project(bot, name)
             project.maxBrigPerUser = maxBrigPerUser
@@ -55,10 +56,10 @@ def add_config_commands(bot: commands.InteractionBot):
             project.waiterRole = waiterRole
             project.write_project_info()
 
-            await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
+            await inter.edit_original_message(loc.GetString("command-done-response"))
             Logger.medium(inter, f"создан проект {name}")
 
-        else: await inter.send(content=loc.GetString("project-create-command-error"), ephemeral=True)
+        else: await inter.edit_original_message(loc.GetString("project-create-command-error"))
 
 
     @bot.slash_command(
@@ -98,6 +99,7 @@ def add_config_commands(bot: commands.InteractionBot):
             description='Канал, куда будет отправлятся статистика рабочих.',
             default=None
         )):
+        await inter.response.defer(ephemeral=True)
         project = Project(bot, projectName)
         await project.read_project_info()
 
@@ -107,7 +109,7 @@ def add_config_commands(bot: commands.InteractionBot):
         if mainChannel is not None: project.mainChannel = mainChannel
         if statChannel is not None: project.statChannel = statChannel
 
-        await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
+        await inter.edit_original_message(loc.GetString("command-done-response"))
         Logger.low(inter, f'изменён конфиг проекта {projectName}')
         Events.onProjectInfoChanged.raiseEvent(project)
 
@@ -146,8 +148,8 @@ def add_config_commands(bot: commands.InteractionBot):
             name='пользоветелей',
             description='максимальное количество пользователей в бригаде, которое задаёт тег (если тег сложности).',
             default= 0
-        )
-    ):
+        )):
+        await inter.response.defer(ephemeral=True)
         project = Project(bot, projectName)
         await project.read_project_info()
 
@@ -160,17 +162,17 @@ def add_config_commands(bot: commands.InteractionBot):
             tag.maxMembers = maxMemebers
             tag.write_tag()
 
-            await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
+            await inter.edit_original_message(loc.GetString("command-done-response"))
             Logger.low(inter, f"создан тег {name} проекта {projectName}")
 
-        else: await inter.send(content=loc.GetString("teg-create-command-error"), ephemeral=True)
+        else: await inter.edit_original_message(loc.GetString("teg-create-command-error"))
 
 
     @bot.slash_command(
         name="удалить-тег",
         description="удалить тег из конфига проекта."
     )
-    async def del_tag(
+    async def delete_tag(
         inter: disnake.ApplicationCommandInteraction,
         projectName: str = commands.Param(
             name='проект',
@@ -181,6 +183,7 @@ def add_config_commands(bot: commands.InteractionBot):
             name='тег',
             description='название тега.'
         )):
+        await inter.response.defer(ephemeral=True)
         project = Project(bot, projectName)
         await project.read_project_info()
 
@@ -190,7 +193,7 @@ def add_config_commands(bot: commands.InteractionBot):
             await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
             Logger.medium(inter, f"удалён тег {name} проекта {projectName}")
 
-        else: await inter.send(content=loc.GetString("teg-delete-command-error"), ephemeral=True)
+        else: await inter.edit_original_message(loc.GetString("teg-delete-command-error"))
 
 
     @bot.slash_command(
@@ -212,6 +215,7 @@ def add_config_commands(bot: commands.InteractionBot):
         role: disnake.Role = commands.Param(
             name="роль"
         )):
+        await inter.response.defer(ephemeral=True)
         project = Project(bot, projectName)
         await project.read_project_info()
 
@@ -223,7 +227,7 @@ def add_config_commands(bot: commands.InteractionBot):
             Logger.low(inter, f"удалена роль {role.name} из проекта {projectName}")
         Events.onProjectInfoChanged.raiseEvent(project)
 
-        await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
+        await inter.edit_original_message(loc.GetString("command-done-response"))
 
 
     @bot.slash_command(
@@ -266,9 +270,10 @@ def add_config_commands(bot: commands.InteractionBot):
             description='роль, которую нужно добавить для выдачи ролей (оставить пустым, если надо удалить).',
             default=None
         )):
+        await inter.response.defer(ephemeral=True)
         if role is not None: bot.subPost.add_role(categorie, emoji, text, role)
         else: bot.subPost.rem_role(categorie, emoji)
-        await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
+        await inter.edit_original_message(loc.GetString("command-done-response"))
 
 
     @bot.slash_command(
