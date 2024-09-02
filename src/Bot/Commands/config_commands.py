@@ -7,9 +7,12 @@ from src.Classes import Project, TagTypes, Tag
 from src.Tools import get_projects, data_files
 from src.Logger import *
 from src.Connect import getHWID
+from src.Localization import LocalizationManager
 
 
 def add_config_commands(bot: commands.InteractionBot):
+    loc = LocalizationManager()
+
     @bot.slash_command(
         name="создать-проект",
         description="Создать базу данных для подпроекта."
@@ -51,11 +54,11 @@ def add_config_commands(bot: commands.InteractionBot):
             project.statChannel = statChannel
             project.waiterRole = waiterRole
             project.write_project_info()
-            
-            await inter.send(content="**Done**", ephemeral=True)
+
+            await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
             Logger.medium(inter, f"создан проект {name}")
 
-        else: await inter.send(content="**Проект с таким названием уже существует.**", ephemeral=True)
+        else: await inter.send(content=loc.GetString("project-create-command-error"), ephemeral=True)
 
 
     @bot.slash_command(
@@ -104,7 +107,7 @@ def add_config_commands(bot: commands.InteractionBot):
         if mainChannel is not None: project.mainChannel = mainChannel
         if statChannel is not None: project.statChannel = statChannel
 
-        await inter.send(content="**Done**", ephemeral=True)
+        await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
         Logger.low(inter, f'изменён конфиг проекта {projectName}')
         Events.onProjectInfoChanged.raiseEvent(project)
 
@@ -157,10 +160,10 @@ def add_config_commands(bot: commands.InteractionBot):
             tag.maxMembers = maxMemebers
             tag.write_tag()
 
-            await inter.send(content="**Done**", ephemeral=True)
+            await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
             Logger.low(inter, f"создан тег {name} проекта {projectName}")
 
-        else: await inter.send(content="Тега с таким название не существует.", ephemeral=True)
+        else: await inter.send(content=loc.GetString("teg-create-command-error"), ephemeral=True)
 
 
     @bot.slash_command(
@@ -184,10 +187,10 @@ def add_config_commands(bot: commands.InteractionBot):
         disTag = project.forum.get_tag_by_name(name)
         if disTag is not None:
             project.delete_tag(Tag(disTag, project))
-            await inter.send(content="**Done**", ephemeral=True)
+            await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
             Logger.medium(inter, f"удалён тег {name} проекта {projectName}")
 
-        else: await inter.send(content="Тега с таким название не существует.", ephemeral=True)
+        else: await inter.send(content=loc.GetString("teg-delete-command-error"), ephemeral=True)
 
 
     @bot.slash_command(
@@ -219,15 +222,15 @@ def add_config_commands(bot: commands.InteractionBot):
             project.associatedRoles.remove(role)
             Logger.low(inter, f"удалена роль {role.name} из проекта {projectName}")
         Events.onProjectInfoChanged.raiseEvent(project)
-        
-        await inter.send(content="**Done**", ephemeral=True)
+
+        await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
 
 
     @bot.slash_command(
         name="конфиг-проекта",
         description="показать конфиг проекта."
     )
-    async def change_project_roles(
+    async def project_config(
         inter: disnake.ApplicationCommandInteraction,
         projectName: str = commands.Param(
             name='проект',
@@ -243,7 +246,7 @@ def add_config_commands(bot: commands.InteractionBot):
         name="изменить-пост-ролей",
         description="показать конфиг проекта."
     )
-    async def change_project_roles(
+    async def change_roles_post(
         inter: disnake.ApplicationCommandInteraction,
         categorie: str = commands.Param(
             name='категория',
@@ -265,7 +268,7 @@ def add_config_commands(bot: commands.InteractionBot):
         )):
         if role is not None: bot.subPost.add_role(categorie, emoji, text, role)
         else: bot.subPost.rem_role(categorie, emoji)
-        await inter.send(content="**Done**", ephemeral=True)
+        await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
 
 
     @bot.slash_command(
@@ -280,15 +283,15 @@ def add_config_commands(bot: commands.InteractionBot):
             choices=data_files()
         )):
         await inter.response.defer(ephemeral=True)
-        await Logger.medium(inter, f"скчан файл конфига \"{configFile}\"")
+        Logger.medium(inter, f"скaчан файл конфига \"{configFile}\"")
         await inter.edit_original_message(file=disnake.File(get_data_path() + configFile))
-    
+
 
     @bot.slash_command(
         name="загрузить-конфиг-файл",
         description="загрузить файл в постоянное хранилище бота"
     )
-    async def upload_config(
+    async def load_config(
         inter: disnake.ApplicationCommandInteraction,
         fileToUpload: disnake.Attachment = commands.Param(
             name="файл",
@@ -298,9 +301,9 @@ def add_config_commands(bot: commands.InteractionBot):
         with open(get_data_path() + fileToUpload.filename, "wb") as f:
             f.write(await fileToUpload.read())
             Logger.high(inter, f"загружен файл {fileToUpload.filename} в постоянное хранилище бота")
-        await inter.edit_original_message(content="**Done**")
+        await inter.edit_original_message(content=loc.GetString("command-done-response"))
         await bot.restart()
-    
+
 
     @bot.slash_command(
         name="reboot"
@@ -308,8 +311,8 @@ def add_config_commands(bot: commands.InteractionBot):
     async def reboot(inter: disnake.ApplicationCommandInteraction):
         await inter.response.defer(ephemeral=True)
         await bot.restart()
-        await inter.edit_original_message(content="**Done**")
-    
+        await inter.edit_original_message(content=loc.GetString("command-done-response"))
+
 
     @bot.slash_command(
         name="hwid",
@@ -324,3 +327,4 @@ def add_config_commands(bot: commands.InteractionBot):
         await inter.response.defer(ephemeral=True)
         await inter.edit_original_message(content=f"```{getHWID(ckey)}```")
         Logger.medium(inter, f"получен HWID по ckey - {ckey}")
+

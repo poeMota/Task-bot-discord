@@ -8,8 +8,8 @@ import sys
 from dotenv import load_dotenv
 
 
-script_dir = os.path.dirname(sys.argv[0])
-
+#script_dir = os.path.dirname(sys.argv[0])
+script_dir = os.getcwd()
 
 # region JSON
 def json_read(file):
@@ -72,3 +72,4 @@ def env(key):
 
 def get_data_path():
     return script_dir + '/data/'
+

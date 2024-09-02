@@ -6,6 +6,7 @@ from src.Logger import *
 from src.Config import *
 from src.Classes import Project, Task, Member, SubscribePost
 from src.Tools import get_projects
+from src.Localization import LocalizationManager
 
 from src.Bot.Commands import *
 from src.Bot.Magazine import add_magazine
@@ -34,6 +35,8 @@ class Bot(commands.InteractionBot):
         add_magazine(self)
         add_events(self)
 
+        LocalizationManager()
+
 
     # region Tools
 
@@ -60,20 +63,20 @@ class Bot(commands.InteractionBot):
         for name in get_projects():
             project = Project(self, name)
             #await project.read_project_info()
-            if project.forum == forum: 
+            if project.forum == forum:
                 return project
-            
+
         return None
-    
+
 
     async def get_task_by_thread(self, thread: disnake.Thread) -> (Task | None):
         if thread is not None and isinstance(thread.parent, disnake.ForumChannel):
             project: Project = await self.get_project_by_forum(thread.parent)
             if project is not None:
                 return project.get_task_by_thread(thread)
-            
+
         return None
-    
+
 
     async def restart(self):
         Logger.debug(f"перезапуск бота...")
@@ -96,3 +99,4 @@ class Bot(commands.InteractionBot):
         self.subPost.update()
         Logger.debug("бот успешно перезапущен")
     # endregion
+
