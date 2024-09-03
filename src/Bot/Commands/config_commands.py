@@ -365,9 +365,9 @@ def add_config_commands(bot: commands.InteractionBot):
             if value != '../': _path += [value]
             else: del _path[-2]
 
-            fullPath = '/'.join(self.path) + '/' + value
+            fullPath = '/'.join(self.path) + value
             if Path(fullPath).is_file():
-                await inter.send(file=disnake.File(fullPath))
+                await inter.send(file=disnake.File(fullPath), ephemeral=True)
                 Logger.medium(inter, loc.GetString("unload-config-command-done-log", configFile=fullPath))
                 return
 
