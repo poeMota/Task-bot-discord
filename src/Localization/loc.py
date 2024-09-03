@@ -2,7 +2,9 @@ import os
 from pathlib import Path
 
 from src.Config import *
+from src.Logger import *
 
+from pprint import pprint
 
 class LocalizationManager:
     def __new__(cls):
@@ -21,13 +23,19 @@ class LocalizationManager:
             if Path(get_data_path() + path + '/' + filename).is_file():
                 self.locs_data.update(from_yaml(path + '/' + filename.split('.')[0], self.culture))
             else:
-                self.CollectLocale(get_data_path() + path + '/' + filename)
+                self.CollectLocale(self, path + '/' + filename)
 
 
     def GetString(self, message: str, **params) -> str:
+        if message not in self.locs_data:
+            Logger.tofile(f"unknown loc string {message}")
+            return message
+
         msg = self.locs_data[message]
         for param in params:
-            if f"<{param}>" in msg:
-                msg.replace(f"<{param}>", params[param])
+            if '{' + param + '}' in msg:
+                msg.replace('{' + param + '}', params[param])
+            else:
+                Logger.tofile(f"unknown param {param} for loc string {msg}", Levels.Error)
         return msg
 

@@ -14,37 +14,37 @@ def add_config_commands(bot: commands.InteractionBot):
     loc = LocalizationManager()
 
     @bot.slash_command(
-        name="создать-проект",
-        description="Создать базу данных для подпроекта."
-    )
+        name=loc.GetString("create-project-command-name"),
+        description=loc.GetString("create-project-command-description")
+        )
     async def create_project(
         inter: disnake.ApplicationCommandInteraction,
         name: str = commands.Param(
-            name='проект',
-            description='Название проекта.',
+            name=loc.GetString("create-project-command-param-name-name"),
+            description=loc.GetString("create-project-command-param-name-description"),
             min_length=1,
             max_length=50
         ),
         maxBrigPerUser: int = commands.Param(
-            name='бригад',
-            description='Максимальное количество бригад для одного пользователя.',
+            name=loc.GetString("create-project-command-param-maxbrigperuser-name"),
+            description=loc.GetString("create-project-command-param-maxbrigperuser-description"),
             min_value=1
         ),
         forum: disnake.channel.ForumChannel = commands.Param(
-            name='форум',
-            description='Канал с заказами для проекта.'
+            name=loc.GetString("create-project-command-param-forum-name"),
+            description=loc.GetString("create-project-command-param-forum-description")
         ),
         waiterRole: disnake.Role = commands.Param(
-            name='ждун',
-            description='Роль, которую будет пинговать при создании тасков.'
+            name=loc.GetString("create-project-command-param-waiterrole-name"),
+            description=loc.GetString("create-project-command-param-waiterrole-description")
         ),
         mainChannel: disnake.TextChannel = commands.Param(
-            name='канал',
-            description='Основной канал (рабочий чат) проекта.'
+            name=loc.GetString("create-project-command-param-mainchannel-name"),
+            description=loc.GetString("create-project-command-param-mainchannel-description")
         ),
         statChannel: disnake.TextChannel = commands.Param(
-            name='статистика',
-            description='Канал, куда будет отправлятся статистика рабочих.'
+            name=loc.GetString("create-project-command-param-statchannel-name"),
+            description=loc.GetString("create-project-command-param-statchannel-description")
         )):
         await inter.response.defer(ephemeral=True)
         if name not in get_projects():
@@ -57,46 +57,46 @@ def add_config_commands(bot: commands.InteractionBot):
             project.write_project_info()
 
             await inter.edit_original_message(loc.GetString("command-done-response"))
-            Logger.medium(inter, f"создан проект {name}")
+            Logger.medium(inter, loc.GetString("create-project-command-done-log", project=name))
 
-        else: await inter.edit_original_message(loc.GetString("project-create-command-error"))
+        else: await inter.edit_original_message(loc.GetString("create-project-command-project-exist-error"))
 
 
     @bot.slash_command(
-        name="изменить-проект",
-        description="Изменить конфиг подпроекта."
+        name=loc.GetString("change-project-command-name"),
+        description=loc.GetString("change-project-command-description")
     )
-    async def create_project(
+    async def change_project(
         inter: disnake.ApplicationCommandInteraction,
         projectName: str = commands.Param(
-            name='проект',
-            description='Название проекта, конфиг которого надо изменить.',
+            name=loc.GetString("change-project-command-param-projectname-name"),
+            description=loc.GetString("change-project-command-param-projectname-description"),
             choices=get_projects()
         ),
         maxBrigPerUser: int = commands.Param(
-            name='бригад',
-            description='Максимальное количество бригад для одного пользователя.',
+            name=loc.GetString("change-project-command-param-maxbrigperuser-name"),
+            description=loc.GetString("change-project-command-param-maxbrigperuser-description"),
             min_value=1,
             default=None
         ),
         forum: disnake.channel.ForumChannel = commands.Param(
-            name='форум',
-            description='Канал с заказами для проекта.',
+            name=loc.GetString("change-project-command-param-forum-name"),
+            description=loc.GetString("change-project-command-param-forum-description"),
             default=None
         ),
         waiterRole: disnake.Role = commands.Param(
-            name='ждун',
-            description='Роль, которую будет пинговать при создании тасков.',
+            name=loc.GetString("change-project-command-param-waiterrole-name"),
+            description=loc.GetString("change-project-command-param-waiterrole-description"),
             default=None
         ),
         mainChannel: disnake.TextChannel = commands.Param(
-            name='канал',
-            description='Основной канал (рабочий чат) проекта.',
+            name=loc.GetString("change-project-command-param-mainchannel-name"),
+            description=loc.GetString("change-project-command-param-mainchannel-description"),
             default=None
         ),
         statChannel: disnake.TextChannel = commands.Param(
-            name='статистика',
-            description='Канал, куда будет отправлятся статистика рабочих.',
+            name=loc.GetString("change-project-command-param-statchannel-name"),
+            description=loc.GetString("change-project-command-param-statchannel-description"),
             default=None
         )):
         await inter.response.defer(ephemeral=True)
@@ -110,44 +110,44 @@ def add_config_commands(bot: commands.InteractionBot):
         if statChannel is not None: project.statChannel = statChannel
 
         await inter.edit_original_message(loc.GetString("command-done-response"))
-        Logger.low(inter, f'изменён конфиг проекта {projectName}')
+        Logger.low(inter, loc.GetString("change-project-command-done-log", project=projectName))
         Events.onProjectInfoChanged.raiseEvent(project)
 
 
     @bot.slash_command(
-        name="создать-тег",
-        description="подключить тег форму к функционалу бота."
+        name=loc.GetString("create-tag-command-name"),
+        description=loc.GetString("create-tag-command-description")
     )
     async def create_tag(
         inter: disnake.ApplicationCommandInteraction,
         projectName: str = commands.Param(
-            name='проект',
-            description='Название проекта, для которого нужно добавить тег.',
+            name=loc.GetString('create-tag-command-param-projectname-name'),
+            description=loc.GetString('create-tag-command-param-projectname-description'),
             choices=get_projects()
         ),
         name: str = commands.Param(
-            name='тег',
-            description='название тега.'
+            name=loc.GetString('create-tag-command-param-name-name'),
+            description=loc.GetString('create-tag-command-param-name-description')
         ),
         tagType: str = commands.Param(
-            name="тип",
-            description="тип тега",
+            name=loc.GetString("create-tag-command-param-tagtype-name"),
+            description=loc.GetString("create-tag-command-param-tagtype-description"),
             choices=[e.value for e in TagTypes]
         ),
         ping: disnake.Role = commands.Param(
-            name="роль",
-            description="роль, пингуемая тегом (если тег пинга).",
+            name=loc.GetString("create-tag-command-param-ping-name"),
+            description=loc.GetString("create-tag-command-param-ping-description"),
             default=0
         ),
         score: int = commands.Param(
-            name='очки',
-            description='(если тег сложности).',
-            default= 0
+            name=loc.GetString('create-tag-command-param-score-name'),
+            description=loc.GetString('create-tag-command-param-score-description'),
+            default=0
         ),
         maxMemebers: int = commands.Param(
-            name='пользоветелей',
-            description='максимальное количество пользователей в бригаде, которое задаёт тег (если тег сложности).',
-            default= 0
+            name=loc.GetString('create-tag-command-param-maxmemebers-name'),
+            description=loc.GetString('create-tag-command-param-maxmemebers-description'),
+            default=0
         )):
         await inter.response.defer(ephemeral=True)
         project = Project(bot, projectName)
@@ -163,25 +163,26 @@ def add_config_commands(bot: commands.InteractionBot):
             tag.write_tag()
 
             await inter.edit_original_message(loc.GetString("command-done-response"))
-            Logger.low(inter, f"создан тег {name} проекта {projectName}")
+            Logger.low(inter, loc.GetString("create-tag-command-done-log", name=name, projectName=projectName))
 
-        else: await inter.edit_original_message(loc.GetString("teg-create-command-error"))
+        else:
+            await inter.edit_original_message(loc.GetString("teg-create-command-error"))
 
 
-    @bot.slash_command(
-        name="удалить-тег",
-        description="удалить тег из конфига проекта."
+    bot.slash_command(
+        name=loc.GetString("delete-tag-command-name"),
+        description=loc.GetString("delete-tag-command-description")
     )
     async def delete_tag(
         inter: disnake.ApplicationCommandInteraction,
         projectName: str = commands.Param(
-            name='проект',
-            description='Название проекта, для которого нужно добавить тег.',
+            name=loc.GetString('delete-tag-command-param-projectname-name'),
+            description=loc.GetString('delete-tag-command-param-projectname-description'),
             choices=get_projects()
         ),
         name: str = commands.Param(
-            name='тег',
-            description='название тега.'
+            name=loc.GetString('delete-tag-command-param-name-name'),
+            description=loc.GetString('delete-tag-command-param-name-description')
         )):
         await inter.response.defer(ephemeral=True)
         project = Project(bot, projectName)
@@ -191,29 +192,28 @@ def add_config_commands(bot: commands.InteractionBot):
         if disTag is not None:
             project.delete_tag(Tag(disTag, project))
             await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
-            Logger.medium(inter, f"удалён тег {name} проекта {projectName}")
-
-        else: await inter.edit_original_message(loc.GetString("teg-delete-command-error"))
-
+            Logger.medium(inter, loc.GetString("delete-tag-command-done-log", name=name, projectName=projectName))
+        else:
+            await inter.edit_original_message(loc.GetString("teg-delete-command-error"))
 
     @bot.slash_command(
-        name="изменить-роли-проекта",
-        description="добавить роль к проекту."
+        name=loc.GetString("change-project-roles-command-name"),
+        description=loc.GetString("change-project-roles-command-description")
     )
     async def change_project_roles(
         inter: disnake.ApplicationCommandInteraction,
         projectName: str = commands.Param(
-            name='проект',
-            description='Название проекта, роли которого нужно изменить.',
+            name=loc.GetString('change-project-roles-command-param-projectname-name'),
+            description=loc.GetString('change-project-roles-command-param-projectname-description'),
             choices=get_projects()
         ),
         mode: str = commands.Param(
-            name='режим',
-            description="Добавить или удалить роли проекта.",
+            name=loc.GetString('change-project-roles-command-param-mode-name'),
+            description=loc.GetString("change-project-roles-command-param-mode-description"),
             choices=["добавить", "удалить"]
         ),
         role: disnake.Role = commands.Param(
-            name="роль"
+            name=loc.GetString("change-project-roles-command-param-role-name")
         )):
         await inter.response.defer(ephemeral=True)
         project = Project(bot, projectName)
@@ -221,24 +221,24 @@ def add_config_commands(bot: commands.InteractionBot):
 
         if mode == "добавить":
             project.associatedRoles.append(role)
-            Logger.low(inter, f"добавлена роль {role.name} для проекта {projectName}")
+            Logger.low(inter, loc.GetString("change-project-roles-command-done-log-add", role=role.name, projectName=projectName))
         elif role in project.associatedRoles:
             project.associatedRoles.remove(role)
-            Logger.low(inter, f"удалена роль {role.name} из проекта {projectName}")
+            Logger.low(inter, loc.GetString("change-project-roles-command-done-log-remove", role=role.name, projectName=projectName))
         Events.onProjectInfoChanged.raiseEvent(project)
 
         await inter.edit_original_message(loc.GetString("command-done-response"))
 
 
     @bot.slash_command(
-        name="конфиг-проекта",
-        description="показать конфиг проекта."
+        name=loc.GetString("project-config-command-name"),
+        description=loc.GetString("project-config-command-description")
     )
     async def project_config(
         inter: disnake.ApplicationCommandInteraction,
         projectName: str = commands.Param(
-            name='проект',
-            description='Название проекта, конфиг которого нужно показать.',
+            name=loc.GetString('project-config-command-param-projectname-name'),
+            description=loc.GetString('project-config-command-param-projectname-description'),
             choices=get_projects()
         )):
         await inter.response.defer(ephemeral=True)
@@ -247,71 +247,74 @@ def add_config_commands(bot: commands.InteractionBot):
 
 
     @bot.slash_command(
-        name="изменить-пост-ролей",
-        description="показать конфиг проекта."
+        name=loc.GetString("change-roles-post-command-name"),
+        description=loc.GetString("change-roles-post-command-description")
     )
     async def change_roles_post(
         inter: disnake.ApplicationCommandInteraction,
         categorie: str = commands.Param(
-            name='категория',
-            description='Название категории.'
+            name=loc.GetString('change-roles-post-command-param-categorie-name'),
+            description=loc.GetString('change-roles-post-command-param-categorie-description')
         ),
         emoji: str = commands.Param(
-            name='емоджи',
-            description='емоджи, которо будет выдавать роль.'
+            name=loc.GetString('change-roles-post-command-param-emoji-name'),
+            description=loc.GetString('change-roles-post-command-param-emoji-description')
         ),
         text: str = commands.Param(
-            name='текст',
-            description='текст, который будет отображатся в посте у эмоджи.',
+            name=loc.GetString('change-roles-post-command-param-text-name'),
+            description=loc.GetString('change-roles-post-command-param-text-description'),
             default=""
         ),
         role: disnake.Role = commands.Param(
-            name='роль',
-            description='роль, которую нужно добавить для выдачи ролей (оставить пустым, если надо удалить).',
+            name=loc.GetString('change-roles-post-command-param-role-name'),
+            description=loc.GetString('change-roles-post-command-param-role-description'),
             default=None
         )):
         await inter.response.defer(ephemeral=True)
-        if role is not None: bot.subPost.add_role(categorie, emoji, text, role)
-        else: bot.subPost.rem_role(categorie, emoji)
+        if role is not None:
+            bot.subPost.add_role(categorie, emoji, text, role)
+        else:
+            bot.subPost.rem_role(categorie, emoji)
         await inter.edit_original_message(loc.GetString("command-done-response"))
 
 
     @bot.slash_command(
-        name="скачать-конфиг-файл",
-        description="скачать конфиг файл бота"
+        name=loc.GetString("unload-config-command-name"),
+        description=loc.GetString("unload-config-command-description")
     )
     async def unload_config(
         inter: disnake.ApplicationCommandInteraction,
         configFile: str = commands.Param(
-            name="файл",
-            description="название файла, который нужно скачать",
+            name=loc.GetString("unload-config-command-param-filename-name"),
+            description=loc.GetString("unload-config-command-param-filename-description"),
             choices=data_files()
         )):
         await inter.response.defer(ephemeral=True)
-        Logger.medium(inter, f"скaчан файл конфига \"{configFile}\"")
+        Logger.medium(inter, loc.GetString("unload-config-command-done-log", configFile=configFile))
         await inter.edit_original_message(file=disnake.File(get_data_path() + configFile))
 
 
     @bot.slash_command(
-        name="загрузить-конфиг-файл",
-        description="загрузить файл в постоянное хранилище бота"
+        name=loc.GetString("load-config-command-name"),
+        description=loc.GetString("load-config-command-description")
     )
     async def load_config(
         inter: disnake.ApplicationCommandInteraction,
         fileToUpload: disnake.Attachment = commands.Param(
-            name="файл",
-            description="файл, который нужно загрузить"
+            name=loc.GetString("load-config-command-param-filetoupload-name"),
+            description=loc.GetString("load-config-command-param-filetoupload-description")
         )):
         await inter.response.defer(ephemeral=True)
         with open(get_data_path() + fileToUpload.filename, "wb") as f:
             f.write(await fileToUpload.read())
-            Logger.high(inter, f"загружен файл {fileToUpload.filename} в постоянное хранилище бота")
+            Logger.high(inter, loc.GetString("load-config-command-done-log", fileToUpload=fileToUpload.filename))
         await inter.edit_original_message(content=loc.GetString("command-done-response"))
         await bot.restart()
 
 
     @bot.slash_command(
-        name="reboot"
+        name=loc.GetString("reboot-command-name"),
+        description=loc.GetString("reboot-command-description")
     )
     async def reboot(inter: disnake.ApplicationCommandInteraction):
         await inter.response.defer(ephemeral=True)
@@ -320,16 +323,16 @@ def add_config_commands(bot: commands.InteractionBot):
 
 
     @bot.slash_command(
-        name="hwid",
-        description="Получить HWID пользователя"
+        name=loc.GetString("user-id-command-name"),
+        description=loc.GetString("user-id-command-description")
     )
-    async def hwid(
+    async def user_id(
         inter: disnake.ApplicationCommandInteraction,
         ckey: str = commands.Param(
-            name="ckey",
-            description="ckey пользователя, HWID которого нужно получить"
+            name=loc.GetString("user-id-command-param-ckey-name"),
+            description=loc.GetString("user-id-command-param-ckey-description")
         )):
         await inter.response.defer(ephemeral=True)
-        await inter.edit_original_message(content=f"```{getHWID(ckey)}```")
-        Logger.medium(inter, f"получен HWID по ckey - {ckey}")
+        await inter.edit_original_message(content=f"```{getuser-id(ckey)}```")
+        Logger.medium(inter, loc.GetString("user-id-command-done-log", ckey=ckey))
 
