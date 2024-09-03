@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 import disnake
 from disnake.ext import commands
 
@@ -285,15 +287,10 @@ def add_config_commands(bot: commands.InteractionBot):
         description=loc.GetString("unload-config-command-description")
     )
     async def unload_config(
-        inter: disnake.ApplicationCommandInteraction,
-        configFile: str = commands.Param(
-            name=loc.GetString("unload-config-command-param-filename-name"),
-            description=loc.GetString("unload-config-command-param-filename-description"),
-            choices=data_files()
-        )):
+        inter: disnake.ApplicationCommandInteraction
+        ):
         await inter.response.defer(ephemeral=True)
-        Logger.medium(inter, loc.GetString("unload-config-command-done-log", configFile=configFile))
-        await inter.edit_original_message(file=disnake.File(get_data_path() + configFile))
+        await inter.edit_original_message(view=DropDownView(get_data_path().split('/')[-1], get_data_path()))
 
 
     @bot.slash_command(
@@ -338,3 +335,47 @@ def add_config_commands(bot: commands.InteractionBot):
         await inter.edit_original_message(content=f"```{getHWID(ckey)}```")
         Logger.medium(inter, loc.GetString("user-id-command-done-log", ckey=ckey))
 
+
+# region View
+    class UnloadConfigDropdown(disnake.ui.StringSelect):
+        def __init__(self, root: str, path: str):
+            loc = LocalizationManager()
+
+            self.root = root
+            self.path = f"{path.replace("//", '/').removesuffix('/')}/".split('/')
+            options = []
+            for _dir in os.listdir('/'.join(self.path)):
+                if (_dir == '../' and root == self.path[-2]) or len(options) == 25 or _dir.startswith('.'):
+                    continue
+                options.append(disnake.SelectOption(
+                    label=_dir,
+                    value=_dir
+                ))
+
+            super().__init__(
+                placeholder=loc.GetString("unload-config-dropdown-placeholder"),
+                min_values=1,
+                max_values=1,
+                options=options,
+            )
+
+        async def callback(self, inter: disnake.MessageInteraction):
+            value = inter.values[0]
+            _path = list(self.path)
+            if value != '../': _path += [value]
+            else: del _path[-2]
+
+            fullPath = '/'.join(self.path) + '/' + value
+            if Path(fullPath).is_file():
+                await inter.edit_original_message(file=disnake.File(fullPath))
+                Logger.medium(inter, loc.GetString("unload-config-command-done-log", configFile=fullPath))
+                return
+
+            await inter.send(view=DropDownView(self.root, '/'.join(_path)), ephemeral=True)
+
+
+    class DropDownView(disnake.ui.View):
+        def __init__(self, root: str, path: str):
+            super().__init__()
+            self.add_item(UnloadConfigDropdown(root, path))
+# endregion
