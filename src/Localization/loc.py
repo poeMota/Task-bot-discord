@@ -30,10 +30,12 @@ class LocalizationManager:
             Logger.tofile(f"unknown loc string {message}")
             return message
 
-        msg = self.locs_data[message]
+        msg: str = self.locs_data[message]
         for param in params:
-            if '{' + param + '}' in msg:
-                msg.replace('{' + param + '}', params[param])
+            _param = '{' + param + '}'
+            print(_param, msg)
+            if _param in msg:
+                msg = msg.replace(_param, str(params[param]))
             else:
                 Logger.tofile(f"unknown param {param} for loc string {msg}", Levels.Error)
         return msg

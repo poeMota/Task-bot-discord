@@ -20,9 +20,9 @@ def add_fun_commands(bot: disnake.Client):
         )):
         await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
         response = await inter.original_response()
-        await inter.channel.send(text)
+        await inter.channel.send(text.replace("\\n", '\n'))
         await response.delete()
-        Logger.low(inter, loc.GetString("bot-send-command-done-log"))
+        Logger.low(inter, loc.GetString("bot-send-command-done-log", text=text))
     
 
     @bot.slash_command(

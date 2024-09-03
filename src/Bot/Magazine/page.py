@@ -2,7 +2,9 @@ import disnake
 
 from src.Logger import Logger
 from src.Classes import Member
+from src.Localization import LocalizationManager
 
+loc = LocalizationManager()
 
 class Page:
     def __init__(self, inter: disnake.AppCommandInteraction, proto):
@@ -28,12 +30,9 @@ class Page:
         if not "type" in proto or not proto["type"] == "page":
             raise ValueError("Given non page proto")
 
-        [setattr(self, 
-                 arg, 
-                 self.convertStr(proto[arg])
-                    if type(proto[arg]) is str
-                    else proto[arg])
-            for arg in proto if arg in dir(self)]
+        [setattr(self, arg, self.convertStr(loc.GetString(proto[arg])) if type(proto[arg]) is str
+                                                                       else proto[arg])
+        for arg in proto if arg in dir(self)]
 
 
     def convertStr(self, string: str):
