@@ -367,7 +367,7 @@ def add_config_commands(bot: commands.InteractionBot):
 
             fullPath = '/'.join(self.path) + '/' + value
             if Path(fullPath).is_file():
-                await inter.edit_original_message(file=disnake.File(fullPath))
+                await inter.send(file=disnake.File(fullPath))
                 Logger.medium(inter, loc.GetString("unload-config-command-done-log", configFile=fullPath))
                 return
 
