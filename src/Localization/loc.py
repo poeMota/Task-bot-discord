@@ -4,7 +4,6 @@ from pathlib import Path
 from src.Config import *
 from src.Logger import *
 
-from pprint import pprint
 
 class LocalizationManager:
     def __new__(cls):
@@ -14,14 +13,14 @@ class LocalizationManager:
             cls.culture = config["culture"]
             cls.locs_data = {}
 
-            cls.CollectLocale(cls, config["locale_path"])
+            cls.CollectLocale(cls, config["locale_path"] + '/' + cls.culture)
         return cls.instance
 
 
     def CollectLocale(self, path):
         for filename in os.listdir(get_data_path() + path):
             if Path(get_data_path() + path + '/' + filename).is_file():
-                self.locs_data.update(from_yaml(path + '/' + filename.split('.')[0], self.culture))
+                self.locs_data.update(yaml_read(path + '/' + filename.split('.')[0]))
             else:
                 self.CollectLocale(self, path + '/' + filename)
 

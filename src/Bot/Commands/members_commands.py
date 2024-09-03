@@ -1,100 +1,109 @@
 import disnake
 from disnake.ext import commands
 
-import src.Events as Events
 from src.Classes import Member
 from src.Logger import *
+from src.Localization import LocalizationManager
 
 
 def add_members_commands(bot: disnake.Client):
+    loc = LocalizationManager()
+    
     @bot.slash_command(
-        name = "изменить-очки",
-        description = "Изменить количество очков пользователя."
+        name=loc.GetString("change-score-command-name"),
+        description=loc.GetString("change-score-command-description")
     )
     async def change_score(
         inter: disnake.CommandInteraction,
         mem: disnake.Member = commands.Param(
-            name='пользователь',
-            description='Пользователь, очки которого нужно изменить.'
+            name=loc.GetString('change-score-command-param-mem-name'),
+            description=loc.GetString('change-score-command-param-mem-description')
         ),
         score: int = commands.Param(
-            name="очки",
-            description="количество очков, которое нужно добавить в статистику пользователя."
+            name=loc.GetString('change-score-command-param-score-name'),
+            description=loc.GetString('change-score-command-param-score-description')
         )):
         member = Member(mem)
-        if score >= 0: member.change_score(score, True)
-        else: member.change_score(score, False)
-        await inter.send(content=f"Количество очков пользователя теперь - {member.score}", ephemeral=True)
+        if score >= 0: 
+            member.change_score(score, True)
+        else: 
+            member.change_score(score, False)
+        await inter.send(content=loc.GetString('change-score-command-done-response', score=member.score), ephemeral=True)
 
 
     @bot.slash_command(
-        name = "изменить-статистику",
-        description = "Изменить статистику пользователя."
+        name=loc.GetString("change-member-stat-command-name"),
+        description=loc.GetString("change-member-stat-command-description")
     )
     async def change_member_stat(
         inter: disnake.CommandInteraction,
         mem: disnake.Member = commands.Param(
-            name='пользователь',
-            description='Пользователь, статистику которого нужно изменить.'
+            name=loc.GetString('change-member-stat-command-param-mem-name'),
+            description=loc.GetString('change-member-stat-command-param-mem-description')
         ),
         param: str = commands.Param(
-            name="парамерт",
-            description="что в статистике нужно изменить.",
-            choices=["выполненные заказы", "курирование заказов", "заметки", "предупреждения"]
+            name=loc.GetString('change-member-stat-command-param-param-name'),
+            description=loc.GetString('change-member-stat-command-param-param-description'),
+            choices=[
+                loc.GetString('change-member-stat-command-param-param-done-tasks'),
+                loc.GetString('change-member-stat-command-param-param-curation-tasks'),
+                loc.GetString('change-member-stat-command-param-param-notes'),
+                loc.GetString('change-member-stat-command-param-param-warns')
+            ]
         ),
         mode: str = commands.Param(
-            name="режим",
-            description="удалить/добавить в статистику.",
-            choices=["добавить", "удалить"]
+            name=loc.GetString('change-member-stat-command-param-mode-name'),
+            description=loc.GetString('change-member-stat-command-param-mode-description'),
+            choices=[loc.GetString('add'), loc.GetString('remove')]
         ),
         value: str = commands.Param(
-            name="значение",
-            description="Значение, которое надо добавить/удалить из статистики."
+            name=loc.GetString('change-member-stat-command-param-value-name'),
+            description=loc.GetString('change-member-stat-command-param-value-description')
         )):
         member = Member(mem)
 
-        if param == "выполненные заказы":
-            if mode == "добавить":
+        if param == loc.GetString('change-member-stat-command-param-param-done-tasks'):
+            if mode == loc.GetString('add'):
                 member.doneTasks.append(value)
             else:
                 member.doneTasks = member.rem_from_stat(member.doneTasks, value)
-        elif param == "курирование заказов":
-            if mode == "добавить":
+        elif param == loc.GetString('change-member-stat-command-param-param-curation-tasks'):
+            if mode == loc.GetString('add'):
                 member.curationTasks.append(value)
             else:
                 member.curationTasks = member.rem_from_stat(member.curationTasks, value)
-        elif param == "заметки":
-            if mode == "добавить":
+        elif param == loc.GetString('change-member-stat-command-param-param-notes'):
+            if mode == loc.GetString('add'):
                 member.notes.append(value)
             else:
                 member.notes = member.rem_from_stat(member.notes, value)
-                Logger.secret(inter, f'удалена заметка "{value}" пользователя {mem.name}')
-        elif param == "предупреждения":
-            if mode == "добавить":
+                Logger.secret(inter, loc.GetString('change-member-stat-command-log-note-removed', value=value, name=mem.name))
+        elif param == loc.GetString('change-member-stat-command-param-param-warns'):
+            if mode == loc.GetString('add'):
                 member.warns.append(value)
             else:
                 member.warns = member.rem_from_stat(member.warns, value)
-                Logger.secret(inter, f'удалено предепреждение "{value}" пользователя {mem.id}')
+                Logger.secret(inter, loc.GetString('change-member-stat-command-log-warn-removed', value=value, id=mem.id))
 
         member.update()
-        await inter.send(content="**Done**", ephemeral=True)
-        Logger.medium(inter, f"изменена статистика пользователя {mem.name}, параметр: {param}")
+        await inter.send(content=loc.GetString('command-done-response'), ephemeral=True)
+        Logger.medium(inter, loc.GetString('change-member-stat-command-log-stat-changed', name=mem.name, param=param))
 
 
     @bot.slash_command(
-        name = "сикей",
-        description = "Изменить сикей пользователя."
+        name=loc.GetString("member-ckey-command-name"),
+        description=loc.GetString("member-ckey-command-description")
     )
     async def member_ckey(
         inter: disnake.CommandInteraction,
         mem: disnake.Member = commands.Param(
-            name='пользователь',
-            description='Пользователь, которому нужно привязать ckey.'
+            name=loc.GetString('member-ckey-command-param-mem-name'),
+            description=loc.GetString('member-ckey-command-param-mem-description')
         ),
         ckey: str = commands.Param(
-            name='ckey',
-            description='ckey, пользователя.'
+            name=loc.GetString('member-ckey-command-param-ckey-name'),
+            description=loc.GetString('member-ckey-command-param-ckey-description')
         )):
         Member(mem).set_ckey(ckey)
-        await inter.send(content="**Done**", ephemeral=True)
-        Logger.medium(inter, f"задан сикей пользователя {mem.name}: {ckey}")
+        await inter.send(content=loc.GetString('command-done-response'), ephemeral=True)
+        Logger.medium(inter, loc.GetString('member-ckey-command-log-ckey-set', name=mem.name, ckey=ckey))

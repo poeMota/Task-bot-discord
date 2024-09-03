@@ -6,45 +6,48 @@ from src.Logger import *
 from src.Classes import Member
 from src.Config import get_data_path
 from src.Connect import *
+from src.Localization import LocalizationManager
 
 
 def add_save_commands(bot: disnake.Client):
+    loc = LocalizationManager()
+
     @bot.slash_command(
-        name = "привязать-папку",
-        description = "Привязать личную папку пользователя."
+        name=loc.GetString("link-folder-command-name"),
+        description=loc.GetString("link-folder-command-description")
     )
     async def link_folder(
         inter: disnake.CommandInteraction,
         folder: str = commands.Param(
-            name="папка",
-            description="название личной папки."
+            name=loc.GetString("link-folder-command-param-folder-name"),
+            description=loc.GetString("link-folder-command-param-folder-description")
         )):
         member = Member(inter.author)
         if member.folder_is_empty():
             member.change_folder(folder.replace("/", "").replace(" ", ""))
-            await inter.send(content="**Папка успешно привязана**", ephemeral=True)
-            Logger.medium(inter, f"привязана папка {folder}")
+            await inter.send(content=loc.GetString("link-folder-command-success-response"), ephemeral=True)
+            Logger.medium(inter, loc.GetString("link-folder-command-log-folder-linked", folder=folder))
         else:
-            await inter.send(content=f'**Вы уже имеете привязанную папку "{member.ownFolder}". Если вам нужно изменить папку обратитесь к ведущему мапперу.**', ephemeral=True)
+            await inter.send(content=loc.GetString("link-folder-command-already-linked-response", folder=member.ownFolder), ephemeral=True)
 
 
     @bot.slash_command(
-        name = "изменить-папку",
-        description = "Изменить личную папку пользователя."
+        name=loc.GetString("change-folder-command-name"),
+        description=loc.GetString("change-folder-command-description")
     )
     async def change_folder(
         inter: disnake.CommandInteraction,
         member: disnake.Member = commands.Param(
-            name='пользователь',
-            description='Пользователь, папку которого нужно изменить.'
+            name=loc.GetString("change-folder-command-param-member-name"),
+            description=loc.GetString("change-folder-command-param-member-description")
         ),
         folder: str = commands.Param(
-            name="папка",
-            description="название новой папки."
+            name=loc.GetString("change-folder-command-param-folder-name"),
+            description=loc.GetString("change-folder-command-param-folder-description")
         )):
         Member(member).change_folder(folder)
-        await inter.send(content=f"**Done**", ephemeral=True)
-        Logger.medium(inter, f"изменена личная папка на {folder}")
+        await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
+        Logger.medium(inter, loc.GetString("change-folder-command-log-folder-changed", folder=folder))
 
 
     async def unload_save(
@@ -59,80 +62,80 @@ def add_save_commands(bot: disnake.Client):
             member = Member(inter.author)
             
             if not isValidUrl(path.strip(), member.ownFolder):
-                await inter.send(content="**ОШИБКА:** такого пути не существует", ephemeral=True)
+                await inter.send(content=loc.GetString("unload-save-command-invalid-path-error"), ephemeral=True)
                 return
             
             if member.folder_is_empty():
-                await inter.send(content="Вы не привязали личную папку, чтобы скачивать сейвы, пропишите команду /привязать-папку.", ephemeral=True)
+                await inter.send(content=loc.GetString("unload-save-command-no-folder-error"), ephemeral=True)
                 return
             
             if ".." in path.split("/"): 
-                await inter.send(content='Недопустимый символ ".." в пути к файлу.', ephemeral=True)
+                await inter.send(content=loc.GetString("unload-save-command-invalid-symbol-error"), ephemeral=True)
                 return
 
             try:
                 unload(url=path, folder=member.ownFolder)
-                Logger.low(inter, f"скачан сейв по пути {path}")
+                Logger.low(inter, loc.GetString("unload-save-command-log-save-downloaded", path=path))
             except IsADirectoryError as e:
-                await inter.edit_original_message(content=f"**[Ошибка]** Вы питаетесь скачать папку, а не файл, проверьте правильность указанного вами пути.")
-                Logger.high(inter, f"ошибка при скачивании сейва по пути {path}: {repr(e)}")
+                await inter.edit_original_message(content=loc.GetString("unload-save-command-folder-error"))
+                Logger.high(inter, loc.GetString("unload-save-command-log-directory-error", path=path, error=repr(e)))
                 return
         else:
             if not isValidUrl(path.strip()):
-                await inter.send(content="**ОШИБКА:** такого пути не существует", ephemeral=True)
+                await inter.send(content=loc.GetString("unload-save-command-invalid-path-error"), ephemeral=True)
                 return
 
             try:
                 unload(url=path)
-                Logger.medium(inter, f"скачан сейв по пути {path}")
+                Logger.medium(inter, loc.GetString("unload-save-command-log-save-downloaded", path=path))
             except IsADirectoryError as e:
-                await inter.edit_original_message(content=f"**[Ошибка]** Вы питаетесь скачать папку, а не файл, проверьте правильность указанного вами пути.")
-                Logger.high(inter, f"ошибка при скачивании сейва по пути {path}: {repr(e)}")
+                await inter.edit_original_message(content=loc.GetString("unload-save-command-folder-error"))
+                Logger.high(inter, loc.GetString("unload-save-command-log-directory-error", path=path, error=repr(e)))
                 return
 
         await inter.edit_original_message(file=disnake.File(full_path))
         os.remove(full_path)
-    
+
 
     async def unload_dropdown_save(
-            inter: disnake.AppCommandInteraction,
-            path: str,
-            fromFolder: bool = True
-            ):
-            if fromFolder:
-                member = Member(inter.author)
+        inter: disnake.AppCommandInteraction,
+        path: str,
+        fromFolder: bool = True
+        ):
+        if fromFolder:
+            member = Member(inter.author)
 
-                if not isValidUrl(path.strip(), member.ownFolder):
-                    await inter.send(content="**ОШИБКА:** такого пути не существует", ephemeral=True)
-                    return
-                
-                if not member.folder_is_empty():
-                    await inter.response.defer(ephemeral=True)
-                    await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView(
-                                                        root=member.ownFolder, 
-                                                        path=f"{member.ownFolder}/{path.strip()}"))
-                else:
-                    await inter.send(content="Вы не привязали личную папку, чтобы скачивать сейвы, пропишите команду /привязать-папку.", ephemeral=True)
-            else:
-                if not isValidUrl(path.strip()):
-                    await inter.send(content="**ОШИБКА:** такого пути не существует", ephemeral=True)
-                    return
-
+            if not isValidUrl(path.strip(), member.ownFolder):
+                await inter.send(content=loc.GetString("unload-save-command-invalid-path-error"), ephemeral=True)
+                return
+            
+            if not member.folder_is_empty():
                 await inter.response.defer(ephemeral=True)
-                await inter.edit_original_message(content=f"# Скачайте сейв с помощью меню поиска:", view=DropDownView(
-                                                        root="",
-                                                        path=path.strip()))
+                await inter.edit_original_message(content=loc.GetString("unload-dropdown-save-command-menu-prompt"), view=DropDownView(
+                                                    root=member.ownFolder, 
+                                                    path=f"{member.ownFolder}/{path.strip()}"))
+            else:
+                await inter.send(content=loc.GetString("unload-save-command-no-folder-error"), ephemeral=True)
+        else:
+            if not isValidUrl(path.strip()):
+                await inter.send(content=loc.GetString("unload-save-command-invalid-path-error"), ephemeral=True)
+                return
+
+            await inter.response.defer(ephemeral=True)
+            await inter.edit_original_message(content=loc.GetString("unload-dropdown-save-command-menu-prompt"), view=DropDownView(
+                                                    root="",
+                                                    path=path.strip()))
 
 
     @bot.slash_command(
-        name="сейв",
-        description="Скачать сейв из привязанной папки по пути."
+        name=loc.GetString("save-command-name"),
+        description=loc.GetString("save-command-description")
     )
     async def save(
         inter: disnake.AppCommandInteraction,
         path: str = commands.Param(
-            name="путь",
-            description="путь до сейва относительно личной папки.",
+            name=loc.GetString("save-command-param-path-name"),
+            description=loc.GetString("save-command-param-path-description"),
             default=""
         )):
         if not path.strip() or path.endswith("/"):
@@ -143,14 +146,14 @@ def add_save_commands(bot: disnake.Client):
 
 
     @bot.slash_command(
-        name="сейв-плюс",
-        description="Скачать сейв из привязанной папки по пути."
+        name=loc.GetString("save-plus-command-name"),
+        description=loc.GetString("save-plus-command-description")
     )
     async def save_plus(
         inter: disnake.AppCommandInteraction,
         path: str = commands.Param(
-            name="путь",
-            description="путь до сейва.",
+            name=loc.GetString("save-plus-command-param-path-name"),
+            description=loc.GetString("save-plus-command-param-path-description"),
             default=""
         )):
         if not path.strip() or path.endswith("/"):
@@ -163,6 +166,8 @@ def add_save_commands(bot: disnake.Client):
 # region View
     class SaveDropdown(disnake.ui.StringSelect):
         def __init__(self, root: str, path: str):
+            loc = LocalizationManager()
+
             self.root = root
             self.path = f"{path.replace("//", '/').removesuffix('/')}/".split('/')
             options = []
@@ -175,7 +180,7 @@ def add_save_commands(bot: disnake.Client):
                 ))
 
             super().__init__(
-                placeholder=f"Выберите путь до файла.",
+                placeholder=loc.GetString("save_dropdown_placeholder"),
                 min_values=1,
                 max_values=1,
                 options=options,

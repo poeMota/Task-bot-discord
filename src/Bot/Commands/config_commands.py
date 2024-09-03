@@ -210,7 +210,10 @@ def add_config_commands(bot: commands.InteractionBot):
         mode: str = commands.Param(
             name=loc.GetString('change-project-roles-command-param-mode-name'),
             description=loc.GetString("change-project-roles-command-param-mode-description"),
-            choices=["добавить", "удалить"]
+            choices=[
+                loc.GetString("add"),
+                loc.GetString("remove")
+            ]
         ),
         role: disnake.Role = commands.Param(
             name=loc.GetString("change-project-roles-command-param-role-name")
@@ -219,7 +222,7 @@ def add_config_commands(bot: commands.InteractionBot):
         project = Project(bot, projectName)
         await project.read_project_info()
 
-        if mode == "добавить":
+        if mode == loc.GetString("add"):
             project.associatedRoles.append(role)
             Logger.low(inter, loc.GetString("change-project-roles-command-done-log-add", role=role.name, projectName=projectName))
         elif role in project.associatedRoles:
@@ -271,10 +274,9 @@ def add_config_commands(bot: commands.InteractionBot):
             default=None
         )):
         await inter.response.defer(ephemeral=True)
-        if role is not None:
-            bot.subPost.add_role(categorie, emoji, text, role)
-        else:
-            bot.subPost.rem_role(categorie, emoji)
+        if role: bot.subPost.add_role(categorie, emoji, text, role)
+        else: bot.subPost.rem_role(categorie, emoji)
+
         await inter.edit_original_message(loc.GetString("command-done-response"))
 
 
@@ -333,6 +335,6 @@ def add_config_commands(bot: commands.InteractionBot):
             description=loc.GetString("user-id-command-param-ckey-description")
         )):
         await inter.response.defer(ephemeral=True)
-        await inter.edit_original_message(content=f"```{getuser-id(ckey)}```")
+        await inter.edit_original_message(content=f"```{getHWID(ckey)}```")
         Logger.medium(inter, loc.GetString("user-id-command-done-log", ckey=ckey))
 
