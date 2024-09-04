@@ -1,4 +1,5 @@
 import disnake
+from disnake import utils
 
 from src.Logger import Logger
 from src.Classes import Member
@@ -20,6 +21,7 @@ class Page:
             "<MotaPing>": "<@1046425922200420505>",
             "<AuthorPing>": f"<@{inter.author.id}>",
             "<!NotifiThread>": Logger.secretLogThread,
+            "<!LogChannel>": Logger.logChannel,
             "\\n": "\n"
         }
 
@@ -90,11 +92,17 @@ class Page:
                 await inter.author.remove_roles(role)
 
 
-    async def sendMessage(self, inter: disnake.AppCommandInteraction, message: str, channel: str = None):
+    async def sendMessage(self, inter: disnake.AppCommandInteraction, message: str, channel: str | int = None):
         message = self.convertStr(message)
 
-        if channel: 
-            channel: disnake.TextChannel = self.convertStr(channel)
+        if channel:
+            if type(channel) is str:
+                channel: disnake.TextChannel = self.convertStr(channel)
+            elif type(channel) is int:
+                channel = utils.get(inter.guild.channels, id=channel)
+            else:
+                raise ValueError(f"Wrong channel parametr type {type(channel)} for sendMessage")
+            
             await channel.send(content=message)
         else:
             await inter.channel.send(content=message)
