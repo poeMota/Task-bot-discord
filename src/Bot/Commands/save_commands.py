@@ -25,7 +25,18 @@ def add_save_commands(bot: disnake.Client):
         )):
         member = Member(inter.author)
         if member.folder_is_empty():
-            member.change_folder(folder.replace("/", "").replace(" ", ""))
+
+            folder = folder.replace("/", "").replace(" ", "")
+            for mem in bot.guild().members:
+                if Member(mem).ownFolder == folder:
+                    await inter.send(content=loc.GetString("link-folder-command-stranger-folder-response"), ephemeral=True)
+                    Logger.secret(inter, loc.GetString("link-folder-command-stranger-folder-log",
+                                                       folder=folder,
+                                                       member1=inter.author.id,
+                                                       member2=mem.id))
+                    return
+                
+            member.change_folder(folder)
             await inter.send(content=loc.GetString("link-folder-command-success-response"), ephemeral=True)
             Logger.medium(inter, loc.GetString("link-folder-command-log-folder-linked", folder=folder))
         else:
