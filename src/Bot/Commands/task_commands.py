@@ -1,9 +1,7 @@
-import enum
 import math
 import disnake
 from disnake.ext import commands
 
-import src.Events as Events
 from src.Classes import Member, Task
 from src.Logger import *
 from src.Config import *
@@ -11,9 +9,9 @@ from src.Localization import LocalizationManager
 from src.HelpManager import HelpManager
 
 
-def add_task_commands(bot: disnake.Client):
-    loc = LocalizationManager()
+loc = LocalizationManager()
 
+def add_task_commands(bot: disnake.Client):
     async def task_member_change(
         inter: disnake.CommandInteraction,
         member: disnake.Member,
@@ -78,11 +76,10 @@ def add_task_commands(bot: disnake.Client):
             if task is not None:
                 task._endingResult = {}
                 if task.brigadire is not None:
-                    task._endingResult[task.brigadire] = int(task.score * 2)  # TODO: move this to config
+                    task._endingResult[task.brigadire] = int(task.score * from_toml("config", "Task")["brigadire_score_modifier"])
                 for i in range(math.ceil(len(task.members) / from_toml("config", "max_dropdowns_per_message"))):
                     await inter.send(view=DropDownView(task, i), ephemeral=True)
                 await inter.edit_original_message(loc.GetString("task-close-command-rate-message"))
-                Logger.high(inter, loc.GetString("task-close-command-done-log", task_name=task.name))
                 return
 
         await inter.edit_original_message(content=loc.GetString("task-not-in-active-thread"))
@@ -217,53 +214,21 @@ def add_task_commands(bot: disnake.Client):
         task_change
     ])
 
+
 # region Task End
-class TaskWorksTypes(enum.Enum): # TODO: move this to config
-    veryGood = ["Отлично работал", "2"]
-    good = ["Хорошо работал", "1.5"]
-    normal = ["Работал", "1"]
-    bad = ["Плохо работал", "0.5"]
-    haveNoTime = ["Не успел поработать", "0"]
-    noWorking = ["Не работал", "-0.5"]
-
-
 class EndTaskDropdown(disnake.ui.StringSelect):
     def __init__(self, task: Task, member: disnake.Member, page: int):
         self.task = task
         self.member = member
         self.page = page
+
         options = [
             disnake.SelectOption(
-                label=f"{TaskWorksTypes.veryGood.value[0]} (x{TaskWorksTypes.veryGood.value[1]})", 
+                label=f"{loc.GetString(label)} (x{factor})", 
                 description=member.display_name,
-                value=TaskWorksTypes.veryGood.value[1]
-                ),
-            disnake.SelectOption(
-                label=f"{TaskWorksTypes.good.value[0]} (x{TaskWorksTypes.good.value[1]})",
-                description=member.display_name,
-                value=TaskWorksTypes.good.value[1]
-                ),
-            disnake.SelectOption(
-                label=f"{TaskWorksTypes.normal.value[0]} (x{TaskWorksTypes.normal.value[1]})",
-                description=member.display_name,
-                value=TaskWorksTypes.normal.value[1]
-                ),
-            disnake.SelectOption(
-                label=f"{TaskWorksTypes.bad.value[0]} (x{TaskWorksTypes.bad.value[1]})",
-                description=member.display_name,
-                value=TaskWorksTypes.bad.value[1]
-                ),
-            disnake.SelectOption(
-                label=f"{TaskWorksTypes.haveNoTime.value[0]} (x{TaskWorksTypes.haveNoTime.value[1]})",
-                description=member.display_name,
-                value=TaskWorksTypes.haveNoTime.value[1]
-                ),
-            disnake.SelectOption(
-                label=f"{TaskWorksTypes.noWorking.value[0]} (x{TaskWorksTypes.noWorking.value[1]})",
-                description=member.display_name,
-                value=TaskWorksTypes.noWorking.value[1]
+                value=str(factor)
                 )
-        ]
+        for label, factor in from_toml("config", "TaskEndRating").items()]
 
         super().__init__(
             placeholder=f"Оцените работу {member.display_name} в таске.",
@@ -279,6 +244,7 @@ class EndTaskDropdown(disnake.ui.StringSelect):
             if self.task.is_endingResult_filled():
                 await self.task.close()
                 await inter.send(content="Заказ завершен :white_check_mark:")
+                Logger.high(inter, loc.GetString("task-close-command-done-log", task_name=self.task.name))
 
 
 class DropDownView(disnake.ui.View):
