@@ -24,9 +24,16 @@ def add_help_commands(bot: disnake.Client):
         )):
         maxEmbeds = 10
 
+        if toAll:
+            inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
+
         embeds = helper.GetCommandsHelp()
         for i in range(math.ceil(len(embeds) / maxEmbeds)):
-            await inter.send(embeds=embeds[i * maxEmbeds:i * maxEmbeds + maxEmbeds], ephemeral=not toAll)
+            if toAll:
+                response = await inter.original_response()
+                await response.channel.send(embeds=embeds[i * maxEmbeds:i * maxEmbeds + maxEmbeds], ephemeral=False)
+            else:
+                await inter.send(embeds=embeds[i * maxEmbeds:i * maxEmbeds + maxEmbeds], ephemeral=False)
         
         Logger.low(inter, loc.GetString("help-all-command-log-viewed"))
     
