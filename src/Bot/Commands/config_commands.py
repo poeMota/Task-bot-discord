@@ -303,11 +303,18 @@ def add_config_commands(bot: commands.InteractionBot):
         fileToUpload: disnake.Attachment = commands.Param(
             name=loc.GetString("load-config-command-param-filetoupload-name"),
             description=loc.GetString("load-config-command-param-filetoupload-description")
+        ),
+        path: str = commands.Param(
+            name=loc.GetString("load-config-command-param-path-name"),
+            description=loc.GetString("load-config-command-param-path-description"),
+            default=""
         )):
         await inter.response.defer(ephemeral=True)
-        with open(get_data_path() + fileToUpload.filename, "wb") as f:
+        path = get_data_path() + path + '/' + fileToUpload.filename
+        
+        with open(path, "wb") as f:
             f.write(await fileToUpload.read())
-            Logger.high(inter, loc.GetString("load-config-command-done-log", fileToUpload=fileToUpload.filename))
+            Logger.high(inter, loc.GetString("load-config-command-done-log", fileToUpload=fileToUpload.filename, path=path))
         await inter.edit_original_message(content=loc.GetString("command-done-response"))
         await bot.restart()
 
