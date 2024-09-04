@@ -1,0 +1,22 @@
+subscribe_post = 1221130927238025388
+subscribe_channel = 1221086380621566062
+guild = 1181533126615375922
+log = 1194260796146991154
+guest_role = 1197973264513896608
+secret_log_thread = 1258856046252916777
+max_dropdowns_per_message = 4
+
+[Localization]
+locale_path = "locale"
+culture = "RU_ru"
+
+[TaskEndRating]
+task-rating-very-good = 2
+task-rating-good = 1.5
+task-rating-normal = 1
+task-rating-bad = 0.5
+task-rating-no-time = 0
+task-rating-didnt-working = -0.5
+
+[Task]
+brigadire_score_modifier = 2.0
