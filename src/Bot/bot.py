@@ -33,6 +33,7 @@ class Bot(commands.InteractionBot):
         add_save_commands(self)
         add_fun_commands(self)
         add_magazine(self)
+        add_help_commands(self)
         add_events(self)
 
         LocalizationManager()
@@ -96,6 +97,11 @@ class Bot(commands.InteractionBot):
             except Exception as e:
                 Logger.debug(f"ошибка при обновлении проекта {name} - {repr(e)}, завершаем перезапуск")
                 return
+        
+        loc = LocalizationManager()
+        loc.CollectLocale()
+        Logger.debug("локализация перезагружена")
+
         self.subPost.update()
         Logger.debug("бот успешно перезапущен")
     # endregion

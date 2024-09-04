@@ -4,6 +4,7 @@ from disnake.ext import commands
 from src.Classes import Member
 from src.Logger import *
 from src.Localization import LocalizationManager
+from src.HelpManager import HelpManager
 
 
 def add_members_commands(bot: disnake.Client):
@@ -107,3 +108,11 @@ def add_members_commands(bot: disnake.Client):
         Member(mem).set_ckey(ckey)
         await inter.send(content=loc.GetString('command-done-response'), ephemeral=True)
         Logger.medium(inter, loc.GetString('member-ckey-command-log-ckey-set', name=mem.name, ckey=ckey))
+    
+    
+    helper = HelpManager()
+    helper.AddCommands([
+        change_score,
+        change_member_stat,
+        member_ckey
+    ])

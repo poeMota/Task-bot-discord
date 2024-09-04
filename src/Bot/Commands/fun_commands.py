@@ -3,6 +3,7 @@ from disnake.ext import commands
 
 from src.Logger import *
 from src.Localization import LocalizationManager
+from src.HelpManager import HelpManager
 
 
 def add_fun_commands(bot: disnake.Client):
@@ -26,8 +27,15 @@ def add_fun_commands(bot: disnake.Client):
     
 
     @bot.slash_command(
-        name=loc.GetString("when_command_name"),
-        description=loc.GetString("when_command_description")
+        name=loc.GetString("when-command-name"),
+        description=loc.GetString("when-command-description")
     )
     async def when(inter: disnake.CommandInteraction):
-        await bot_send(inter, loc.GetString("when_command_response"))
+        await bot_send(inter, loc.GetString("when-command-response"))
+    
+    
+    helper = HelpManager()
+    helper.AddCommands([
+        bot_send,
+        when
+    ])

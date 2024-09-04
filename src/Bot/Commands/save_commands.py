@@ -7,6 +7,7 @@ from src.Classes import Member
 from src.Config import get_data_path
 from src.Connect import *
 from src.Localization import LocalizationManager
+from src.HelpManager import HelpManager
 
 
 def add_save_commands(bot: disnake.Client):
@@ -161,6 +162,15 @@ def add_save_commands(bot: disnake.Client):
             return
         
         await unload_save(inter, path, False)
+    
+
+    helper = HelpManager()
+    helper.AddCommands([
+        link_folder,
+        change_folder,
+        save,
+        save_plus
+    ])
 
 
 # region View

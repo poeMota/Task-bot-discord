@@ -10,11 +10,12 @@ from src.Tools import get_projects, data_files
 from src.Logger import *
 from src.Connect import getHWID
 from src.Localization import LocalizationManager
+from src.HelpManager import HelpManager
 
 
 def add_config_commands(bot: commands.InteractionBot):
     loc = LocalizationManager()
-
+    
     @bot.slash_command(
         name=loc.GetString("create-project-command-name"),
         description=loc.GetString("create-project-command-description")
@@ -171,7 +172,7 @@ def add_config_commands(bot: commands.InteractionBot):
             await inter.edit_original_message(loc.GetString("teg-create-command-error"))
 
 
-    bot.slash_command(
+    @bot.slash_command(
         name=loc.GetString("delete-tag-command-name"),
         description=loc.GetString("delete-tag-command-description")
     )
@@ -334,6 +335,23 @@ def add_config_commands(bot: commands.InteractionBot):
         await inter.response.defer(ephemeral=True)
         await inter.edit_original_message(content=f"```{getHWID(ckey)}```")
         Logger.medium(inter, loc.GetString("user-id-command-done-log", ckey=ckey))
+    
+
+    helper = HelpManager()
+    helper.AddCommands([
+        create_project,
+        change_project,
+        create_tag,
+        delete_tag,
+        change_project_roles,
+        project_config,
+        change_roles_post,
+        unload_config,
+        load_config,
+        reboot,
+        user_id
+    ])
+
 
 
 # region View

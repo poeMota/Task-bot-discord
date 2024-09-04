@@ -9,25 +9,34 @@ class LocalizationManager:
     def __new__(cls):
         if not hasattr(cls, 'instance'):
             cls.instance = super(LocalizationManager, cls).__new__(cls)
-            config = from_toml("config", "Localization")
-            cls.culture = config["culture"]
             cls.locs_data = {}
+            cls.culture = "EN_us"
 
-            cls.CollectLocale(cls, config["locale_path"] + '/' + cls.culture)
+            cls.CollectLocale(cls)
+
         return cls.instance
+    
+
+    def CollectLocale(self):
+        config = from_toml("config", "Localization")
+
+        self.locs_data = {}
+        self.culture = config["culture"]
+
+        self._collectLocale(self, config["locale_path"] + '/' + self.culture)
 
 
-    def CollectLocale(self, path):
+    def _collectLocale(self, path):
         for filename in os.listdir(get_data_path() + path):
             if Path(get_data_path() + path + '/' + filename).is_file():
                 self.locs_data.update(yaml_read(path + '/' + filename.split('.')[0]))
             else:
-                self.CollectLocale(self, path + '/' + filename)
+                self._collectLocale(self, path + '/' + filename)
 
 
     def GetString(self, message: str, **params) -> str:
         if message not in self.locs_data:
-            Logger.tofile(f"unknown loc string {message}")
+            Logger.tofile(f"unknown loc string {message}", Levels.Error)
             return message
 
         msg: str = self.locs_data[message]

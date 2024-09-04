@@ -5,6 +5,7 @@ from datetime import datetime
 from src.Classes import Member
 from src.Logger import *
 from src.Localization import LocalizationManager
+from src.HelpManager import HelpManager
 
 
 def add_stat_commands(bot: disnake.Client):
@@ -26,8 +27,8 @@ def add_stat_commands(bot: disnake.Client):
     async def member_statistics(
         inter: disnake.CommandInteraction,
         disMember: disnake.Member = commands.Param(
-            name=loc.GetString("member-statistics-command-param-user-name"),
-            description=loc.GetString("member-statistics-command-param-user-description")
+            name=loc.GetString("member-statistics-command-param-dismember-name"),
+            description=loc.GetString("member-statistics-command-param-dismember-description")
         )):
         await inter.send(embed=Member(disMember).stat_embed(showHidden=True), ephemeral=True)
         Logger.medium(inter, loc.GetString("member-statistics-command-log-viewed", username=disMember.name))
@@ -40,16 +41,16 @@ def add_stat_commands(bot: disnake.Client):
     async def warning(
         inter: disnake.CommandInteraction,
         _member: disnake.Member = commands.Param(
-            name=loc.GetString("warning-command-param-user-name"),
-            description=loc.GetString("warning-command-param-user-description")
+            name=loc.GetString("warning-command-param-member-name"),
+            description=loc.GetString("warning-command-param-member-description")
         ),
         rule: str = commands.Param(
             name=loc.GetString("warning-command-param-rule-name"),
             description=loc.GetString("warning-command-param-rule-description")
         ),
         text: str = commands.Param(
-            name=loc.GetString("warning-command-param-violation-name"),
-            description=loc.GetString("warning-command-param-violation-description")
+            name=loc.GetString("warning-command-param-text-name"),
+            description=loc.GetString("warning-command-param-text-description")
         )):
         await inter.response.defer(ephemeral=True)
         member = Member(_member)
@@ -69,12 +70,12 @@ def add_stat_commands(bot: disnake.Client):
     async def note(
         inter: disnake.CommandInteraction,
         _member: disnake.Member = commands.Param(
-            name=loc.GetString("note-command-param-user-name"),
-            description=loc.GetString("note-command-param-user-description")
+            name=loc.GetString("note-command-param-member-name"),
+            description=loc.GetString("note-command-param-member-description")
         ),
         text: str = commands.Param(
-            name=loc.GetString("note-command-param-note-name"),
-            description=loc.GetString("note-command-param-note-description")
+            name=loc.GetString("note-command-param-text-name"),
+            description=loc.GetString("note-command-param-text-description")
         )):
         await inter.response.defer(ephemeral=True)
         member = Member(_member)
@@ -85,3 +86,12 @@ def add_stat_commands(bot: disnake.Client):
         _text = loc.GetString("note-command-log-issued", text=text, username=_member.name)
         Logger.high(inter, _text)
         Logger.secret(inter, _text)
+
+
+    helper = HelpManager()
+    helper.AddCommands([
+        my_statistics,
+        member_statistics,
+        warning,
+        note
+    ])

@@ -15,7 +15,7 @@ class Levels(enum.Enum):
     Low = "[Low]"
     Debug = "[Debug]"
     Secret = "**[Оповещение]**"
-    Error = "**[Error]"
+    Error = "[Error]"
 
 
 class Logger:
