@@ -261,8 +261,9 @@ class Project:
             loop = asyncio.get_event_loop()
             embeds = self.project_stat_embed()
             for role in embeds:
-                loop.create_task(
-                    self.statPost[role].edit(embed=embeds[role])
+                if role in self.statPost:
+                    loop.create_task(
+                        self.statPost[role].edit(embed=embeds[role])
                     )
             Logger.debug(f"обновлен пост статистики проекта {self.name}")
 
