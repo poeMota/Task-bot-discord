@@ -28,7 +28,7 @@ def add_help_commands(bot: disnake.Client):
         embeds = helper.GetCommandsHelp()
         for i in range(math.ceil(len(embeds) / maxEmbeds)):
             await inter.send(embeds=embeds[i * maxEmbeds:i * maxEmbeds + maxEmbeds], ephemeral=not toAll)
-            if toAll: asyncio.sleep(1)
+            if toAll: await asyncio.sleep(1)
         
         Logger.low(inter, loc.GetString("help-all-command-log-viewed"))
     
