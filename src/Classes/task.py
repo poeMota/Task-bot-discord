@@ -9,20 +9,20 @@ import src.Classes as Classes
 class Task:
     _instances = {}
 
-    def __new__(cls, project, id=0, *args, **kwargs):
+    def __new__(cls, project, taskid=0, *args, **kwargs):
         if project.name not in cls._instances:
             cls._instances[project.name] = {}
-        if id in cls._instances[project.name]:
-            return cls._instances[project.name][id]
+        if taskid in cls._instances[project.name]:
+            return cls._instances[project.name][taskid]
         instance = super().__new__(cls)
-        cls._instances[project.name][id] = instance
+        cls._instances[project.name][taskid] = instance
         return instance
 
 
-    def __init__(self, project, id, thread: disnake.Thread=None) -> None:
+    def __init__(self, project, taskid, thread: disnake.Thread=None) -> None:
         if not hasattr(self, '_initialized'):
             self.project: Classes.Project = project
-            self.id = id
+            self.id = taskid
             self.timeFormat = "%Y-%m-%d"
 
             # Write/Read from config

@@ -132,9 +132,11 @@ def add_events(bot: disnake.Client):
             if role not in after.roles:
                 _roles.append(role)
         
+        member = Member(after)
         for projectName in get_projects():
             project = Project(bot, projectName)
             for role in _roles:
                 if role in project.associatedRoles:
-                    Events.onMemberInfoChanged.raiseEvent(Member(after))
+                    Events.onMemberInfoChanged.raiseEvent(member)
                     return
+                    

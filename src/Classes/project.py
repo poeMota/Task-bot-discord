@@ -259,13 +259,28 @@ class Project:
     def update_stat_post(self, ev: Event):
         if self.inited:
             loop = asyncio.get_event_loop()
-            embeds = self.project_stat_embed()
-            for role in embeds:
-                if role in self.statPost:
-                    loop.create_task(
-                        self.statPost[role].edit(embed=embeds[role])
-                    )
-            Logger.debug(f"обновлен пост статистики проекта {self.name}")
+            loop.create_task(
+                self.async_update_stat_post()
+            )
+
+
+    async def async_update_stat_post(self):
+        embeds = self.project_stat_embed()
+        for role in self.associatedRoles:
+            if role in self.statPost:
+                if role in embeds:
+                    await self.statPost[role].edit(embed=embeds[role])
+                else:
+                    Logger.error(f"Не получилось обновить данные роли {role.name} для поста статистики")
+            else:
+                message = await self.statChannel.send(embed=embeds[role])
+                self.statPost[role] = message
+        
+        for role in list(self.statPost):
+            if role not in self.associatedRoles:
+                await self.statPost[role].delete()
+                del self.statPost[role]
+        Logger.debug(f"обновлен пост статистики проекта {self.name}")
 
 
     def __del__(self):
