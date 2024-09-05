@@ -52,6 +52,10 @@ class Logger:
         Logger.log(Levels.Debug, text, Logger.logChannel)
 
     @staticmethod
+    def error(text: str):
+        Logger.log(Levels.Error, text, Logger.logChannel)
+
+    @staticmethod
     def secret(inter, text: str):
         Logger.log(Levels.Secret, text, Logger.secretLogThread, inter)
 

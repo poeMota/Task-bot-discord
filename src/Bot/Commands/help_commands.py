@@ -1,4 +1,5 @@
 import math
+import asyncio
 import disnake
 from disnake.ext import commands
 
@@ -22,18 +23,12 @@ def add_help_commands(bot: disnake.Client):
             description=loc.GetString("help-all-command-param-toall-description"),
             default=False
         )):
-        maxEmbeds = 10
-
-        if toAll:
-            inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
+        maxEmbeds = 8
 
         embeds = helper.GetCommandsHelp()
         for i in range(math.ceil(len(embeds) / maxEmbeds)):
-            if toAll:
-                response = await inter.original_response()
-                await response.channel.send(embeds=embeds[i * maxEmbeds:i * maxEmbeds + maxEmbeds], ephemeral=False)
-            else:
-                await inter.send(embeds=embeds[i * maxEmbeds:i * maxEmbeds + maxEmbeds], ephemeral=False)
+            await inter.send(embeds=embeds[i * maxEmbeds:i * maxEmbeds + maxEmbeds], ephemeral=not toAll)
+            if toAll: asyncio.sleep(1)
         
         Logger.low(inter, loc.GetString("help-all-command-log-viewed"))
     

@@ -33,7 +33,7 @@ class HelpManager:
 
         embed_width = 34
         embed = disnake.Embed(
-            title=loc.GetString(f"{command_str}-command-name"),
+            title='/' + loc.GetString(f"{command_str}-command-name"),
             description=description + "ㅤ" * embed_width,
             color=disnake.Color.orange()
         )

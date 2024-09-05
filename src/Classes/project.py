@@ -87,11 +87,15 @@ class Project:
 
         try:
             for role_id in project_data[self.name]["stat_post"]:
-                self.statPost[self.bot.get_role(int(role_id))] = await self.bot.get_channel(
-                    project_data[self.name]["stat_channel"]
+                role = self.bot.get_role(int(role_id))
+                if role:
+                    self.statPost[role] = await self.bot.get_channel(
+                        project_data[self.name]["stat_channel"]
                     ).fetch_message(
                         project_data[self.name]["stat_post"][role_id]
-                        )
+                    )
+                else:
+                    Logger.error(f"неизвестная роль \"{role_id}\" при чтении поста статистики проекта {self.name}")
         except Exception as e:
             print(repr(e))
             Logger.debug(f"Ошибка при чтении поста статистики {self.name}, {repr(e)}, создаём новый")
