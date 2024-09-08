@@ -99,11 +99,12 @@ def add_task_commands(bot: disnake.Client):
                 if task.brigadire is None:
                     member = Member(inter.author)
 
-                    if member not in task.members and len(task.members) < task.maxMembers:
-                        member.join_task(task)
-                    else:
-                        await inter.edit_original_message(loc.GetString("brigadire-command-max-members-error-message"))
-                        return
+                    if member not in task.members:
+                        if len(task.members) < task.maxMembers:
+                            member.join_task(task)
+                        else:
+                            await inter.edit_original_message(loc.GetString("brigadire-command-max-members-error-message"))
+                            return
 
                     task.set_brigadire(member)
                     await task.thread.send(loc.GetString("brigadire-command-message", member_id=member.member.id))
