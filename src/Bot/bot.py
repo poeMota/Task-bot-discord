@@ -23,7 +23,7 @@ class Bot(commands.InteractionBot):
         if hasattr(self, '_initialized') and self._initialized:
             return
         super().__init__(intents=disnake.Intents.all(), test_guilds=[from_toml("config", "guild")])
-        self.subPost: SubscribePost = None
+        self.subPosts: dict[SubscribePost] = {}
         self._initialized = True
 
         add_stat_commands(self)
@@ -97,12 +97,36 @@ class Bot(commands.InteractionBot):
             except Exception as e:
                 Logger.debug(f"ошибка при обновлении проекта {name} - {repr(e)}, завершаем перезапуск")
                 return
-        
+
         loc = LocalizationManager()
         loc.CollectLocale()
         Logger.debug("локализация перезагружена")
 
         self.subPost.update()
         Logger.debug("бот успешно перезапущен")
+
+
+    def parse_message_link(self, link: str):
+        try:
+            parts = link.split("/")
+            guild_id = int(parts[-3])
+            channel_id = int(parts[-2])
+            message_id = int(parts[-1])
+            return guild_id, channel_id, message_id
+        except (ValueError, IndexError):
+            return None, None, None
+
+
+    async def get_message_by_link(self, link: str) -> disnake.Message:
+        _, channel_id, message_id = self.parse_message_link(link)
+        guild = self.guild()
+
+        if not (guild and channel_id and message_id):
+            raise ValueError("Wrong message url")
+
+        channel = await guild.fetch_channel(channel_id)
+        message = await channel.fetch_message(message_id)
+
+        return message
     # endregion
 

@@ -14,22 +14,18 @@ def add_events(bot: disnake.Client):
     async def on_ready():
         [Project(bot, name) for name in get_projects()]
         guild: disnake.Guild = bot.guild()
+
         Logger.logChannel = await bot.fetch_channel(from_toml("config", "log"))
         Logger.secretLogThread = utils.get(guild.threads, id=from_toml("config", "secret_log_thread"))
 
-        subChannel: disnake.TextChannel = await bot.fetch_channel(from_toml("config", "subscribe_channel"))
-        try:
-            subPost: disnake.Message = await subChannel.fetch_message(from_toml("config", "subscribe_post"))
-        except disnake.NotFound:
-            cfg = toml_read("config")
-            subPost = await subChannel.send(content="Wait...")
-            cfg["subscribe_post"] = subPost.id
-            toml_write("config", cfg)
+        for url in json_read("subscribe_post"):
+            try:
+                message = await bot.get_message_by_link(url)
+                bot.subPosts[url] = SubscribePost(bot, message)
+            except Exception as e:
+                Logger.error(f"Ошибка при попытке найти пост выдачи ролей по ссылке {url} - {repr(e)}")
 
-        bot.subPost = SubscribePost(bot, subPost)
-        bot.subPost.update()
-
-        print(f'Logged in as {bot.user}')
+        Logger.debug("Бот запущен")
 
 
     @bot.event
@@ -47,7 +43,7 @@ def add_events(bot: disnake.Client):
         thread: disnake.Thread = guild.get_thread(payload.channel_id)
 
         # Tasks join
-        if (thread is not None 
+        if (thread is not None
             and await bot.get_project_by_forum(thread.parent) is not None
             and payload.emoji == thread.parent.default_reaction):
 
@@ -64,12 +60,14 @@ def add_events(bot: disnake.Client):
                     channel = bot.get_channel(payload.channel_id)
                     message = await channel.fetch_message(payload.message_id)
                     await message.remove_reaction(payload.emoji, member)
-            
-        # Role post
-        sub_channel = utils.get(guild.channels, id=from_toml("config", "subscribe_channel"))
-        sub_post = SubscribePost(bot, await sub_channel.fetch_message(from_toml("config", "subscribe_post")))
 
-        if payload.channel_id == sub_channel.id and payload.message_id == sub_post.id:
+        # Role post
+        channel = utils.get(guild.channels, id=payload.channel_id)
+        message = await channel.fetch_message(payload.message_id)
+
+        if message.jump_url in json_read("subscribe_post"):
+            sub_post = SubscribePost(bot, message)
+
             if str(payload.emoji) in sub_post.givenRoles:
                 member = utils.get(guild.members, id=payload.user_id)
                 await member.add_roles(sub_post.givenRoles[str(payload.emoji)][0])
@@ -80,10 +78,12 @@ def add_events(bot: disnake.Client):
     async def on_raw_reaction_remove(payload: disnake.RawReactionActionEvent):
         # Role post
         guild: disnake.Guild = bot.guild()
-        sub_channel = utils.get(guild.channels, id=from_toml("config", "subscribe_channel"))
-        sub_post = SubscribePost(bot, await sub_channel.fetch_message(from_toml("config", "subscribe_post")))
+        channel = utils.get(guild.channels, id=payload.channel_id)
+        message = await channel.fetch_message(payload.message_id)
 
-        if payload.channel_id == sub_channel.id and payload.message_id == sub_post.id:
+        if message.jump_url in json_read("subscribe_post"):
+            sub_post = SubscribePost(bot, message)
+
             if str(payload.emoji) in sub_post.givenRoles:
                 member = utils.get(guild.members, id=payload.user_id)
                 if member.bot: return
@@ -114,7 +114,7 @@ def add_events(bot: disnake.Client):
         if before.applied_tags != after.applied_tags:
             if isinstance(after.parent, disnake.ForumChannel):
                 task: Task = await bot.get_task_by_thread(after)
-                if task is not None: 
+                if task is not None:
                     task.update()
 
 
@@ -122,7 +122,7 @@ def add_events(bot: disnake.Client):
     async def on_member_update(before: disnake.Member, after: disnake.Member):
         if before.roles == after.roles:
             return
-        
+
         _roles = []
         for role in after.roles:
             if role not in before.roles:
@@ -131,7 +131,7 @@ def add_events(bot: disnake.Client):
         for role in before.roles:
             if role not in after.roles:
                 _roles.append(role)
-        
+
         member = Member(after)
         for projectName in get_projects():
             project = Project(bot, projectName)
@@ -139,4 +139,4 @@ def add_events(bot: disnake.Client):
                 if role in project.associatedRoles:
                     Events.onMemberInfoChanged.raiseEvent(member)
                     return
-                    
+

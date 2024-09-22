@@ -5,7 +5,7 @@ from disnake.ext import commands
 
 import src.Events as Events
 from src.Config import *
-from src.Classes import Project, TagTypes, Tag
+from src.Classes import Project, TagTypes, Tag, SubscribePost
 from src.Tools import get_projects, data_files
 from src.Logger import *
 from src.Connect import getHWID
@@ -15,7 +15,7 @@ from src.HelpManager import HelpManager
 
 def add_config_commands(bot: commands.InteractionBot):
     loc = LocalizationManager()
-    
+
     @bot.slash_command(
         name=loc.GetString("create-project-command-name"),
         description=loc.GetString("create-project-command-description")
@@ -253,11 +253,32 @@ def add_config_commands(bot: commands.InteractionBot):
 
 
     @bot.slash_command(
+        name=loc.GetString("create-roles-post-command-name"),
+        description=loc.GetString("create-roles-post-command-description")
+    )
+    async def create_roles_post(
+        inter: disnake.ApplicationCommandInteraction,
+        channel: disnake.TextChannel = commands.Param(
+            name=loc.GetString("create-roles-post-command-param-channel-name"),
+            description=loc.GetString("create-roles-post-command-param-channel-description")
+        )):
+        await inter.response.defer(ephemeral=True)
+        message = await inter.channel.send("Wait...")
+
+        bot.subPosts[message.jump_url] = SubscribePost(bot, message)
+        bot.subPosts[message.jump_url].update()
+
+
+    @bot.slash_command(
         name=loc.GetString("change-roles-post-command-name"),
         description=loc.GetString("change-roles-post-command-description")
     )
     async def change_roles_post(
         inter: disnake.ApplicationCommandInteraction,
+        url: str = commands.Param(
+            name=loc.GetString('change-roles-post-command-param-url-name'),
+            description=loc.GetString('change-roles-post-command-param-url-description')
+        ),
         categorie: str = commands.Param(
             name=loc.GetString('change-roles-post-command-param-categorie-name'),
             description=loc.GetString('change-roles-post-command-param-categorie-description')
@@ -277,8 +298,13 @@ def add_config_commands(bot: commands.InteractionBot):
             default=None
         )):
         await inter.response.defer(ephemeral=True)
-        if role: bot.subPost.add_role(categorie, emoji, text, role)
-        else: bot.subPost.rem_role(categorie, emoji)
+
+        if url not in bot.subPosts:
+            await inter.edit_original_message(loc.GetString("change-roles-post-command-url-error"))
+            return
+
+        if role: bot.subPosts[url].add_role(categorie, emoji, text, role)
+        else: bot.subPosts[url].rem_role(categorie, emoji)
 
         await inter.edit_original_message(loc.GetString("command-done-response"))
 
@@ -311,7 +337,7 @@ def add_config_commands(bot: commands.InteractionBot):
         )):
         await inter.response.defer(ephemeral=True)
         path = get_data_path() + path + '/' + fileToUpload.filename
-        
+
         with open(path, "wb") as f:
             f.write(await fileToUpload.read())
             Logger.high(inter, loc.GetString("load-config-command-done-log", fileToUpload=fileToUpload.filename, path=path))
@@ -342,7 +368,7 @@ def add_config_commands(bot: commands.InteractionBot):
         await inter.response.defer(ephemeral=True)
         await inter.edit_original_message(content=f"```{getHWID(ckey)}```")
         Logger.medium(inter, loc.GetString("user-id-command-done-log", ckey=ckey))
-    
+
 
     helper = HelpManager()
     helper.AddCommands([
@@ -350,6 +376,7 @@ def add_config_commands(bot: commands.InteractionBot):
         change_project,
         create_tag,
         delete_tag,
+        create_roles_post,
         change_project_roles,
         project_config,
         change_roles_post,
@@ -404,3 +431,4 @@ def add_config_commands(bot: commands.InteractionBot):
             super().__init__()
             self.add_item(UnloadConfigDropdown(root, path))
 # endregion
+

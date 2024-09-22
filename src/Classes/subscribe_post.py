@@ -19,15 +19,20 @@ class SubscribePost:
 
 
     def read_sub_post(self):
-        sub_post_data = json_read("subscribe_post")
+        data = json_read("subscribe_post")
 
+        if self.post.jump_url not in data:
+            self.write_sub_post()
+            return
+
+        sub_post_data = data[self.post.jump_url]
         for categorie in sub_post_data:
-            self.categories[categorie] = [] 
+            self.categories[categorie] = []
             for emoji in sub_post_data[categorie]:
                 self.categories[categorie].append(emoji)
-                self.givenRoles[emoji] = [self.bot.get_role(sub_post_data[categorie][emoji]["role"]), 
+                self.givenRoles[emoji] = [self.bot.get_role(sub_post_data[categorie][emoji]["role"]),
                                           sub_post_data[categorie][emoji]["text"]]
-    
+
 
     def write_sub_post(self):
         data = {}
@@ -38,7 +43,10 @@ class SubscribePost:
                     "text": self.givenRoles[emoji][1],
                     "role": self.givenRoles[emoji][0].id
                 }
-        json_write("subscribe_post", data)
+
+        _data = json_read("subscribe_post")
+        _data[self.post.jump_url] = data
+        json_write("subscribe_post", _data)
 
 
     def update(self):
@@ -47,8 +55,8 @@ class SubscribePost:
         loop.create_task(self.post.edit(content="", embed=self.get_embed()))
         for emoji in self.givenRoles:
             loop.create_task(self.post.add_reaction(emoji))
-        Logger.debug("обновлён пост выдачи ролей")
-    
+        Logger.debug(f"обновлён пост выдачи ролей {self.post.jump_url}")
+
 
     def add_role(self, categorie: str, emoji: str, text: str, role: disnake.role):
         if categorie not in self.categories:
@@ -83,3 +91,4 @@ class SubscribePost:
                 text = f"{text}{str(emoji)} - {self.givenRoles[emoji][1]}\n"
             embed.add_field(name=categorie, value=text, inline=False)
         return embed
+
