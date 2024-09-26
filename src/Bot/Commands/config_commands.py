@@ -317,7 +317,7 @@ def add_config_commands(bot: commands.InteractionBot):
         inter: disnake.ApplicationCommandInteraction
         ):
         await inter.response.defer(ephemeral=True)
-        await inter.edit_original_message(view=DropDownView(get_data_path().split('/')[-1], get_data_path()))
+        await inter.edit_original_message(view=DropDownView(get_data_path().name, get_data_path()))
 
 
     @bot.slash_command(
@@ -336,11 +336,11 @@ def add_config_commands(bot: commands.InteractionBot):
             default=""
         )):
         await inter.response.defer(ephemeral=True)
-        path = get_data_path() + path + '/' + fileToUpload.filename
+        path = get_data_path() / path / fileToUpload.filename
 
         with open(path, "wb") as f:
             f.write(await fileToUpload.read())
-            Logger.high(inter, loc.GetString("load-config-command-done-log", fileToUpload=fileToUpload.filename, path=path))
+            Logger.high(inter, loc.GetString("load-config-command-done-log", fileToUpload=fileToUpload.filename, path=str(path)))
         await inter.edit_original_message(content=loc.GetString("command-done-response"))
         await bot.restart()
 
@@ -390,18 +390,18 @@ def add_config_commands(bot: commands.InteractionBot):
 
 # region View
     class UnloadConfigDropdown(disnake.ui.StringSelect):
-        def __init__(self, root: str, path: str):
+        def __init__(self, root: str, path: Path):
             loc = LocalizationManager()
 
             self.root = root
-            self.path = f"{path.replace("//", '/').removesuffix('/')}/".split('/')
+            self.path = path
             options = []
-            for _dir in os.listdir('/'.join(self.path)):
-                if (_dir == '../' and root == self.path[-2]) or len(options) == 25 or _dir.startswith('.'):
+            for _dir in self.path.iterdir():
+                if (_dir.name == '../' and root == self.path.parent.name) or len(options) == 25 or _dir.name.startswith('.'):
                     continue
                 options.append(disnake.SelectOption(
-                    label=_dir,
-                    value=_dir
+                    label=_dir.name,
+                    value=_dir.name
                 ))
 
             super().__init__(
@@ -413,21 +413,19 @@ def add_config_commands(bot: commands.InteractionBot):
 
         async def callback(self, inter: disnake.MessageInteraction):
             value = inter.values[0]
-            _path = list(self.path)
-            if value != '../': _path += [value]
-            else: del _path[-2]
+            if value != '../': self.path = self.path / value
+            else: self.path = self.path.parent
 
-            fullPath = '/'.join(self.path) + value
-            if Path(fullPath).is_file():
-                await inter.send(file=disnake.File(fullPath), ephemeral=True)
-                Logger.medium(inter, loc.GetString("unload-config-command-done-log", configFile=fullPath))
+            if self.path.is_file():
+                await inter.send(file=disnake.File(str(self.path)), ephemeral=True)
+                Logger.medium(inter, loc.GetString("unload-config-command-done-log", configFile=self.path.name))
                 return
 
-            await inter.send(view=DropDownView(self.root, '/'.join(_path)), ephemeral=True)
+            await inter.send(view=DropDownView(self.root, self.path), ephemeral=True)
 
 
     class DropDownView(disnake.ui.View):
-        def __init__(self, root: str, path: str):
+        def __init__(self, root: str, path: Path):
             super().__init__()
             self.add_item(UnloadConfigDropdown(root, path))
 # endregion

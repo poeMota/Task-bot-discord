@@ -35,7 +35,7 @@ def add_save_commands(bot: disnake.Client):
                                                        member1=inter.author.id,
                                                        member2=mem.id))
                     return
-                
+
             member.change_folder(folder)
             await inter.send(content=loc.GetString("link-folder-command-success-response"), ephemeral=True)
             Logger.medium(inter, loc.GetString("link-folder-command-log-folder-linked", folder=folder))
@@ -68,20 +68,20 @@ def add_save_commands(bot: disnake.Client):
         fromFolder: bool = True
         ):
         await inter.response.defer(ephemeral=True)
-        full_path = get_data_path() + path.split("/")[-1]
+        full_path = str(get_data_path() / path.split("/")[-1])
 
         if fromFolder:
             member = Member(inter.author)
-            
+
             if not isValidUrl(path.strip(), member.ownFolder):
                 await inter.send(content=loc.GetString("unload-save-command-invalid-path-error"), ephemeral=True)
                 return
-            
+
             if member.folder_is_empty():
                 await inter.send(content=loc.GetString("unload-save-command-no-folder-error"), ephemeral=True)
                 return
-            
-            if ".." in path.split("/"): 
+
+            if ".." in path.split("/"):
                 await inter.send(content=loc.GetString("unload-save-command-invalid-symbol-error"), ephemeral=True)
                 return
 
@@ -120,11 +120,11 @@ def add_save_commands(bot: disnake.Client):
             if not isValidUrl(path.strip(), member.ownFolder):
                 await inter.send(content=loc.GetString("unload-save-command-invalid-path-error"), ephemeral=True)
                 return
-            
+
             if not member.folder_is_empty():
                 await inter.response.defer(ephemeral=True)
                 await inter.edit_original_message(content=loc.GetString("unload-dropdown-save-command-menu-prompt"), view=DropDownView(
-                                                    root=member.ownFolder, 
+                                                    root=member.ownFolder,
                                                     path=f"{member.ownFolder}/{path.strip()}"))
             else:
                 await inter.send(content=loc.GetString("unload-save-command-no-folder-error"), ephemeral=True)
@@ -153,7 +153,7 @@ def add_save_commands(bot: disnake.Client):
         if not path.strip() or path.endswith("/"):
             await unload_dropdown_save(inter, path)
             return
-        
+
         await unload_save(inter, path)
 
 
@@ -171,9 +171,9 @@ def add_save_commands(bot: disnake.Client):
         if not path.strip() or path.endswith("/"):
             await unload_dropdown_save(inter, path, False)
             return
-        
+
         await unload_save(inter, path, False)
-    
+
 
     helper = HelpManager()
     helper.AddCommands([
@@ -225,3 +225,4 @@ def add_save_commands(bot: disnake.Client):
             super().__init__()
             self.add_item(SaveDropdown(root, path))
 # endregion
+
