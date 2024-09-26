@@ -25,7 +25,7 @@ class Project:
         if not hasattr(self, '_initialized'):
             self.bot = bot
             self.inited = False
-            
+
             # Write/Read from config
             self.name = name
             self.lastTaskId = 0
@@ -52,7 +52,7 @@ class Project:
 
             self._initialized = True
 
-    
+
     def __repr__(self) -> str:
         return f"project {self.name}"
 
@@ -100,7 +100,7 @@ class Project:
             print(repr(e))
             Logger.debug(f"Ошибка при чтении поста статистики {self.name}, {repr(e)}, создаём новый")
             await self.send_stat_post()
-        
+
         self.inited = True
 
 
@@ -142,7 +142,7 @@ class Project:
         if ev.Raiser.project == self:
             self.tags.append(ev.Raiser)
             self.write_project_info()
-    
+
 
     def delete_tag(self, tag):
         if tag in self.tags:
@@ -155,7 +155,7 @@ class Project:
             if thread == task.thread:
                 return task
         return None
-    
+
 
     def get_task_by_url(self, url: str):
         for task in self.tasks.values():
@@ -177,7 +177,7 @@ class Project:
         task.score, task.maxMembers = task.get_settings()
 
         inWorkTag = self.get_tag(Classes.TagTypes.inWork)
-        if inWorkTag is not None: 
+        if inWorkTag is not None:
             try:
                 await task.thread.add_tags(inWorkTag)
             except Exception as e:
@@ -192,13 +192,13 @@ class Project:
         del self.tasks[task.id]
         self.write_project_info()
 
-    
+
     def member_in_project(self, member):
         for role in member.member.roles:
             if role in self.associatedRoles:
                 return True
         return False
-    
+
 
     def config_embed(self):
         return embed_from_dict(
@@ -240,16 +240,16 @@ class Project:
             if last_role:
                 embeds[last_role].add_field(name=disMember.display_name, value=Classes.Member(disMember).stat_post_text())
                 nums[last_role] += 1
-        
+
         for role in nums:
             embeds[role].title = f"{role.name} ({nums[role]})"
 
         return embeds
-    
+
 
     async def send_stat_post(self):
         embeds = self.project_stat_embed()
-        
+
         for role in embeds:
             self.statPost[role] = await self.statChannel.send(embed=embeds[role])
 
@@ -257,7 +257,7 @@ class Project:
 
 
     def update_stat_post(self, ev: Event):
-        if self.inited:
+        if self.inited and self.statPost:
             loop = asyncio.get_event_loop()
             loop.create_task(
                 self.async_update_stat_post()
@@ -275,7 +275,7 @@ class Project:
             else:
                 message = await self.statChannel.send(embed=embeds[role])
                 self.statPost[role] = message
-        
+
         for role in list(self.statPost):
             if role not in self.associatedRoles:
                 await self.statPost[role].delete()
@@ -285,3 +285,4 @@ class Project:
 
     def __del__(self):
         self.write_project_info()
+

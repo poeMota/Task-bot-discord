@@ -8,7 +8,7 @@ from src.Localization import LocalizationManager
 loc = LocalizationManager()
 
 class Page:
-    def __init__(self, inter: disnake.AppCommandInteraction, proto):
+    def __init__(self, inter: disnake.AppCommandInteraction, proto, replacements):
         self.name = None
         self.description = None
         self.price = 0
@@ -17,16 +17,15 @@ class Page:
         self.notAccess = []
 
         self.replacements = {
-            "<HeadMapperPing>": "<@&1181535312304951296>",
-            "<MotaPing>": "<@1046425922200420505>",
             "<AuthorPing>": f"<@{inter.author.id}>",
             "<!NotifiThread>": Logger.secretLogThread,
             "<!LogChannel>": Logger.logChannel,
             "\\n": "\n"
         }
+        [self.replacements[f"<{repl}>"] = replacements[repl] for repl in replacements]
 
         self.readProto(proto)
-    
+
 
     def readProto(self, proto: dict):
         if not "type" in proto or not proto["type"] == "page":
@@ -47,8 +46,8 @@ class Page:
                 else:
                     string = string.replace(replacement, self.replacements[replacement])
         return string
-    
-    
+
+
     def isAccess(self, member: disnake.Member):
         access = False
 
@@ -102,7 +101,8 @@ class Page:
                 channel = utils.get(inter.guild.channels, id=channel)
             else:
                 raise ValueError(f"Wrong channel parametr type {type(channel)} for sendMessage")
-            
+
             await channel.send(content=message)
         else:
             await inter.channel.send(content=message)
+

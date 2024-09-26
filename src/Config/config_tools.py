@@ -7,20 +7,24 @@ import sys
 
 from dotenv import load_dotenv
 
+script_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-script_dir = os.path.dirname(sys.argv[0])
-#script_dir = os.getcwd()
 
 # region JSON
 def json_read(file):
-    with io.open(get_data_path() + f"{file}.json", "r", encoding="utf8") as json_file:
-        json_data = json.load(json_file)
-    return json_data
+    try:
+        with io.open(get_data_path() + f"{file}.json", "r", encoding="utf8") as json_file:
+            return json.load(json_file)
+    except FileNotFoundError:
+        with io.open(get_data_path() + f"{file}.json", "w", encoding="utf8") as json_file:
+            return {}
 
 
 def from_json(file, tag):
     json_data = json_read(file)
-    return json_data[tag]
+    if tag in json_data:
+        return json_data[tag]
+    return None
 
 
 def json_write(file, content):
@@ -31,14 +35,19 @@ def json_write(file, content):
 
 # region TOML
 def toml_read(file):
-    with io.open(get_data_path() + f"{file}.toml", "r", encoding="utf8") as toml_file:
-        toml_data = toml.load(toml_file)
-    return toml_data
+    try:
+        with io.open(get_data_path() + f"{file}.toml", "r", encoding="utf8") as toml_file:
+            return toml.load(toml_file)
+    except FileNotFoundError:
+        with io.open(get_data_path() + f"{file}.toml", "w", encoding="utf8") as toml_file:
+            return {}
 
 
 def from_toml(file, tag):
     toml_data = toml_read(file)
-    return toml_data[tag]
+    if tag in toml_data:
+        return toml_data[tag]
+    return None
 
 
 def toml_write(file, content):
@@ -49,14 +58,19 @@ def toml_write(file, content):
 
 # region YAML
 def yaml_read(file):
-    with io.open(get_data_path() + f"{file}.yml", "r", encoding="utf8") as yaml_file:
-        yaml_data = yaml.load(yaml_file, Loader=yaml.FullLoader)
-    return yaml_data
+    try:
+        with io.open(get_data_path() + f"{file}.yml", "r", encoding="utf8") as yaml_file:
+            return yaml.load(yaml_file, Loader=yaml.FullLoader)
+    except FileNotFoundError:
+        with io.open(get_data_path() + f"{file}.yml", "w", encoding="utf8") as yaml_file:
+            return {}
 
 
 def from_yaml(file, tag):
     yaml_data = yaml_read(file)
-    return yaml_data[tag]
+    if tag in yaml_data:
+        return yaml_data[tag]
+    return None
 
 
 def yaml_write(file, content):

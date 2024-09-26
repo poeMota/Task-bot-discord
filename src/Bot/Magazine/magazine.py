@@ -47,7 +47,7 @@ def add_magazine(bot: commands.InteractionBot):
 async def page(
         inter: disnake.CommandInteraction,
         edit=False
-        ):
+    ):
     embed = disnake.Embed(
         title=loc.GetString("shop-embed-title"),
         description=loc.GetString("shop-embed-description"),
@@ -85,8 +85,10 @@ async def page(
 
 class Magazine:
     def __init__(self, current_page, inter: disnake.CommandInteraction):
-        self.pages = [Page(inter, proto) for proto in yaml_read("magazine")]
+        replacements = yaml_read("magazine_replacements")
+        self.pages = [Page(inter, proto, replacements) for proto in yaml_read("magazine")]
         self.pages = [page for page in self.pages if page.isAccess(inter.author)]
 
         self.current_page = current_page
         self.inter = inter
+
