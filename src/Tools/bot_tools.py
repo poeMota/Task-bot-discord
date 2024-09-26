@@ -1,5 +1,4 @@
 from os import listdir
-from os.path import isfile, join
 
 from disnake import Embed
 from src.Config import *
@@ -7,10 +6,6 @@ from src.Config import *
 
 def get_projects():
     return list(json_read("projects").keys())
-
-
-def data_files() -> list[str]:
-    return [f for f in listdir(get_data_path()) if (isfile(join(get_data_path(), f)) and '.env' not in f)]
 
 
 def embed_from_dict(title: str, description: str, color: int, D: dict, showHidden: bool):
@@ -24,7 +19,7 @@ def embed_from_dict(title: str, description: str, color: int, D: dict, showHidde
     for key in D:
         # Skip hidden items
         if "@" in key and not showHidden: continue
-        
+
         value = ""
         if type(D[key]) is list or type(D[key]) is tuple:
             if len(D[key]) == 0: continue
@@ -46,7 +41,7 @@ def embed_from_dict(title: str, description: str, color: int, D: dict, showHidde
         else:
             name = key
             value = D[key]
-        
+
         if type(value) is str and len(value) > 1024:
             value = value[-1024:-1] + value[-1]
 
@@ -57,3 +52,4 @@ def embed_from_dict(title: str, description: str, color: int, D: dict, showHidde
         )
 
     return embed
+

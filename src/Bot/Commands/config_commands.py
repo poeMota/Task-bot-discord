@@ -6,7 +6,7 @@ from disnake.ext import commands
 import src.Events as Events
 from src.Config import *
 from src.Classes import Project, TagTypes, Tag, SubscribePost
-from src.Tools import get_projects, data_files
+from src.Tools import get_projects
 from src.Logger import *
 from src.Connect import getHWID
 from src.Localization import LocalizationManager

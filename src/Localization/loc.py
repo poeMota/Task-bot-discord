@@ -20,7 +20,7 @@ class LocalizationManager:
 
             self.CollectLocale()
             self._initialized = True
-    
+
 
     def CollectLocale(self):
         config = from_toml("config", "Localization")
@@ -32,8 +32,8 @@ class LocalizationManager:
 
 
     def _collectLocale(self, path):
-        for filename in os.listdir(get_data_path() + path):
-            if Path(get_data_path() + path + '/' + filename).is_file():
+        for filename in os.listdir(get_data_path() / path):
+            if Path(get_data_path() / path / filename).is_file():
                 self.locs_data.update(yaml_read(path + '/' + filename.split('.')[0]))
             else:
                 self._collectLocale(path + '/' + filename)
