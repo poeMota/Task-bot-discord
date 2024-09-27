@@ -100,8 +100,6 @@ class Bot(commands.InteractionBot):
         loc = LocalizationManager()
         loc.CollectLocale()
         Logger.debug("локализация перезагружена")
-
-        self.subPost.update()
         Logger.debug("бот успешно перезапущен")
 
 

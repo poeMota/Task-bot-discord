@@ -8,6 +8,9 @@ def get_projects():
     return list(json_read("projects").keys())
 
 
+# DONT READ THIS FUCKING SHIT
+# THIS IS HELL, KILL WITH FIRE
+# TODO: rework this with recursive methods
 def embed_from_dict(title: str, description: str, color: int, D: dict, showHidden: bool):
     embed = Embed(
         title=title,
@@ -33,7 +36,11 @@ def embed_from_dict(title: str, description: str, color: int, D: dict, showHidde
             if len(D[key]) == 0: continue
             name = f"{key} ({len(D[key])}):"
             for k in D[key]:
-                value = f"{value}- {k}: {D[key][k]}"
+                if type(D[key][k]) is list:
+                    if not D[key][k]: continue
+                    value = f"{value}**{k}** {list_to_text(D[key][k])}"
+                else:
+                    value = f"{value}- {k}: {D[key][k]}"
 
         elif type(D[key]) is str and D[key].strip() == "":
             continue
@@ -43,7 +50,10 @@ def embed_from_dict(title: str, description: str, color: int, D: dict, showHidde
             value = D[key]
 
         if type(value) is str and len(value) > 1024:
-            value = value[-1024:-1] + value[-1]
+            value = value[:1021:] + "..."
+
+        if not value:
+            continue
 
         embed.add_field(
             name=name.replace("@", ""),
@@ -52,4 +62,13 @@ def embed_from_dict(title: str, description: str, color: int, D: dict, showHidde
         )
 
     return embed
+
+def list_to_text(l: list):
+    text = f"**({len(l)}):**"
+    for i in l:
+        if type(i) is list:
+            text = f"{text}\n - {list_to_text(i)}"
+        else:
+            text = f"{text}\n - {i}"
+    return text
 

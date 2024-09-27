@@ -50,7 +50,7 @@ def add_events(bot: disnake.Client):
             task: Task = await bot.get_task_by_thread(thread)
             member = Member(payload.member)
             if task is not None and member not in task.members:
-                if (len(member.inTasks) < task.project.maxBrigPerUser
+                if (member.in_tasks(task.project) < task.project.maxBrigPerUser
                     and len(task.members) < task.maxMembers
                     and task.project.member_in_project(member)):
                     if task not in member.inTasks and task.url not in member.inTasks:

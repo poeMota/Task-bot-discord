@@ -238,7 +238,8 @@ class Project:
                     last_role = role
 
             if last_role:
-                embeds[last_role].add_field(name=disMember.display_name, value=Classes.Member(disMember).stat_post_text())
+                embeds[last_role].add_field(name=disMember.display_name,
+                                            value=Classes.Member(disMember).stat_post_text(self)[:1024:])
                 nums[last_role] += 1
 
         for role in nums:

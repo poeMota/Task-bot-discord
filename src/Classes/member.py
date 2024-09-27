@@ -24,9 +24,9 @@ class Member:
             # Write/Read from config
             self.id = self.member.id
             self.rank = self.member.roles[-1].name
-            self.inTasks = []
-            self.doneTasks = []
-            self.curationTasks = []
+            self.inTasks = {}
+            self.doneTasks = {}
+            self.curationTasks = {}
             self.ownFolder = ""
             self.score = 0
             self.AllTimeScore = 0
@@ -34,7 +34,7 @@ class Member:
             self.ckey = ""
             self.warns = []
             self.notes = []
-            self.last_activity = ""
+            self.last_activity = {}
             self.read_member_info()
 
             # Temp
@@ -50,9 +50,9 @@ class Member:
             return
 
         self.inTasks, self.doneTasks, self.curationTasks, self.ownFolder, self.score, self.AllTimeScore, self.ckey, self.warns, self.notes = (
-            "" if "в бригадах" not in members_data[str(self.id)] else members_data[str(self.id)]["в бригадах"],
-            [] if "выполненные заказы" not in members_data[str(self.id)] else members_data[str(self.id)]["выполненные заказы"],
-            [] if "курирование заказов" not in members_data[str(self.id)] else members_data[str(self.id)]["курирование заказов"],
+            {} if "в бригадах" not in members_data[str(self.id)] else members_data[str(self.id)]["в бригадах"],
+            {} if "выполненные заказы" not in members_data[str(self.id)] else members_data[str(self.id)]["выполненные заказы"],
+            {} if "курирование заказов" not in members_data[str(self.id)] else members_data[str(self.id)]["курирование заказов"],
             "" if "личная папка" not in members_data[str(self.id)] else members_data[str(self.id)]["личная папка"],
             0 if "очки" not in members_data[str(self.id)] else members_data[str(self.id)]["очки"],
             0 if "очков за всё время" not in members_data[str(self.id)] else members_data[str(self.id)]["очков за всё время"],
@@ -61,18 +61,20 @@ class Member:
             [] if "@заметки" not in members_data[str(self.id)] else members_data[str(self.id)]["@заметки"]
         )
 
-        if "@последняя активность" in members_data[str(self.id)] and members_data[str(self.id)]["@последняя активность"] != "":
+        if "@последняя активность" in members_data[str(self.id)] and members_data[str(self.id)]["@последняя активность"]:
             self.last_activity = members_data[str(self.id)]["@последняя активность"]
-        else: self.last_activity = self._last_activity()
+        else: self.last_activity = {}
 
 
     def write_member_info(self):
         members_data = json_read("members_database")
 
-        inTasks = []
-        for task in self.inTasks:
-            if isinstance(task, str): inTasks.append(task)
-            else: inTasks.append(task.url)
+        inTasks = {}
+        for projectName in self.inTasks:
+            inTasks[projectName] = []
+            for task in self.inTasks[projectName]:
+                if isinstance(task, str): inTasks[projectName].append(task)
+                else: inTasks[projectName].append(task.url)
 
         members_data[str(self.id)] = {
             "в бригадах": inTasks,
@@ -93,8 +95,14 @@ class Member:
         self.write_member_info()
 
 
+    def in_tasks(self, project) -> int:
+        if project.name not in self.inTasks:
+            return 0
+        return len(self.inTasks[project.name])
+
+
     def join_task(self, task):
-        self.inTasks.append(task)
+        self.inTasks[task.project.name].append(task)
         self.update()
         task.on_join(self)
         Logger.debug(f"{self.member.display_name} присоединился к заказу {task.name}")
@@ -102,7 +110,7 @@ class Member:
 
 
     def leave_task(self, task):
-        self.inTasks.remove(task)
+        self.inTasks[task.project.name].remove(task)
         self.update()
         task.on_leave(self)
         Logger.debug(f"{self.member.display_name} покинул заказ {task.name}")
@@ -114,12 +122,18 @@ class Member:
         self.change_score(task._endingResult[self], True)
         if task._endingResult[self] > 0:
             if task.brigadire != self:
-                self.doneTasks.append(task.get_string())
+                if task.project.name not in self.doneTasks:
+                    self.doneTasks[task.project.name] = []
+                self.doneTasks[task.project.name].append(task.get_string())
                 Logger.debug(f"заказ {task.name} записан в выполенные заказы пользователя {self.member.display_name}")
             else:
-                self.curationTasks.append(task.get_string())
+                if task.project.name not in self.curationTasks:
+                    self.curationTasks[task.project.name] = []
+                self.curationTasks[task.project.name].append(task.get_string())
                 Logger.debug(f"заказ {task.name} записан в курирование заказов пользователя {self.member.display_name}")
-            self.last_activity = datetime.now().strftime("%Y-%m-%d")
+            if task.project.name not in self.last_activity:
+                self.last_activity[task.project.name] = []
+            self.last_activity[task.project.name] = datetime.now().strftime("%Y-%m-%d")
 
         self.leave_task(task)
         self.update()
@@ -128,7 +142,7 @@ class Member:
     def get_info(self) -> dict:
         members_data = json_read("members_database")
         return members_data[str(self.id)]
-    
+
 
     def stat_embed(self, showHidden: False) -> disnake.Embed:
         return embed_from_dict(
@@ -138,23 +152,23 @@ class Member:
             D=self.get_info(),
             showHidden=showHidden
         )
-    
 
-    def inactivity_days(self):
+
+    def inactivity_days(self, project):
         try:
-            return (datetime.now() - datetime.strptime(self.last_activity, "%Y-%m-%d")).days
+            return (datetime.now() - datetime.strptime(self.last_activity[project.name], "%Y-%m-%d")).days
         except:
             return "неизвестно"
-    
 
-    def stat_post_text(self) -> str:
+
+    def stat_post_text(self, project) -> str:
         show_data = {
             "очки": self.score
             }
-        text = (f"╠︎ **заказов вып.:** {len(self.doneTasks)}\n" +
-                f"╠︎ **курирование:** {len(self.curationTasks)}\n" +
-                f"╠︎ **в бригадах:** {self.in_brigades_text()}\n" +
-                f"╠︎ **активность:** {self.inactivity_days()} дней назад")
+        text = (f"╠︎ **заказов вып.:** {0 if project.name not in self.doneTasks else len(self.doneTasks[project.name])}\n" +
+                f"╠︎ **курирование:** {0 if project.name not in self.curationTasks else len(self.curationTasks[project.name])}\n" +
+                f"╠︎ **в бригадах:** {self.in_brigades_text(project)}\n" +
+                f"╠︎ **активность:** {self.inactivity_days(project)} дней назад")
 
         for key in show_data:
             char = "╠︎"
@@ -164,38 +178,18 @@ class Member:
         return text
 
 
-    def in_brigades_text(self):
+    def in_brigades_text(self, project):
         text = ""
-        for task in self.inTasks:
+        if project.name not in self.inTasks:
+            return "нет"
+
+        for task in self.inTasks[project.name]:
             if isinstance(task, str):
                 text = f"{text}\n- {task}"
             else: text = f"{text}\n- {task.url}"
 
-        if text == "": text = "нет"
+        if not text: text = "нет"
         return text
-
-
-    # TODO: delete this
-    def _last_activity(self):
-        format = "%Y-%m-%d"
-        last_curation, last_task = None, None
-        try:
-            last_curation = datetime.strptime(self.curationTasks[-1].split(" ")[-1], format)
-        except: last_curation = "неизвестно"
-
-        try:
-            last_task = datetime.strftime(datetime.strptime(self.doneTasks[-1].split(" ")[-1], format))
-        except: last_task = "неизвестно"
-
-        '''
-        if last_curation == "неизвестно" and last_curation == "неизвестно":
-            return "неизвестно"
-        elif last_task != "неизвестно" and last_curation != "неизвестно":
-            if last_curation > last_task: return datetime.strftime(last_curation, format)
-            else: return datetime.strftime(last_task, format)
-        elif last_curation == "неизвестно": return last_task
-        else: return last_curation'''
-        return last_task
 
 
     def change_score(self, score: int, allScore: bool = False) -> None:
@@ -204,7 +198,7 @@ class Member:
         self.update()
         Logger.debug(f"изменены очки пользователя {self.member.display_name} на {score}, allScore: {allScore}")
         Events.onMemberInfoChanged.raiseEvent(self)
-    
+
 
     def folder_is_empty(self):
         return self.ownFolder.replace(" ", "") == ""
@@ -213,7 +207,7 @@ class Member:
     def change_folder(self, folder: str):
         self.ownFolder = folder
         self.update()
-    
+
 
     def set_ckey(self, ckey):
         self.ckey = ckey
@@ -221,11 +215,21 @@ class Member:
 
 
     def rem_from_stat(self, param, value):
-        for i in list(param):
-            if value in i:
-                param.remove(i)
+        if type(param) is list:
+            for i in list(param):
+                if value in i:
+                    param.remove(i)
+        elif type(param) is dict:
+            for key in dict(param):
+                if key == value or param[key] == value:
+                    del param[key]
+                elif type(param[key]) is list:
+                    for i in param[key]:
+                        if value in i:
+                            param[key].remove(i)
         return param
 
 
     def __del__(self):
         self.write_member_info()
+
