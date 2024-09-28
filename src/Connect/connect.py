@@ -25,6 +25,11 @@ def isValidUrl(url: str, folder: str = ""):
     return True
 
 
+def fileDates(url: str) -> str:
+    data = unload(url, write=False)
+    return {qoute.text: qoute.next_sibling.strip().split("  ")[0] for qoute in BeautifulSoup(data, "html.parser").find_all('a')}
+
+
 def getDirs(path: str) -> list[str]:
     HTMLdata = unload(url=path, write=False)
     soup = BeautifulSoup(HTMLdata, 'html.parser')

@@ -192,12 +192,15 @@ def add_save_commands(bot: disnake.Client):
             self.root = root
             self.path = f"{path.replace("//", '/').removesuffix('/')}/".split('/')
             options = []
-            for _dir in getDirs('/'.join(self.path)):
+
+            dates = fileDates('/'.join(self.path))
+            for _dir in dates:
                 if (_dir == '../' and root == self.path[-2]) or len(options) == 25:
                     continue
                 options.append(disnake.SelectOption(
                     label=_dir,
-                    value=_dir
+                    value=_dir,
+                    description=dates[_dir]
                 ))
 
             super().__init__(
