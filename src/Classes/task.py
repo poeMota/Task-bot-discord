@@ -53,7 +53,7 @@ class Task:
             return
 
         self.score, self.name, self.url, self.thread, self.brigadire, self.startDate, self.lastSave, self._maxMembers, self.maxMembers = (
-            0 if "score_modifier" not in project_data[self.project.name]["tasks"][str(self.id)] 
+            0 if "score_modifier" not in project_data[self.project.name]["tasks"][str(self.id)]
                 else project_data[self.project.name]["tasks"][str(self.id)]["score_modifier"],
 
             "Unknown" if "name" not in project_data[self.project.name]["tasks"][str(self.id)]
@@ -112,7 +112,7 @@ class Task:
             "max_members": self.maxMembers
         }
         json_write("projects", project_data)
-    
+
 
     def __str__(self) -> str:
         return f"**заказ**: {self.name} #{self.id}\nㅤ**ветка**: {self.url}"
@@ -144,7 +144,7 @@ class Task:
 
     def get_string(self) -> str:
         return f"{self.name} {self.url}"
-    
+
 
     def info_embed(self) -> disnake.Embed:
         embed = disnake.Embed(
@@ -159,36 +159,39 @@ class Task:
         text = ""
         for member in self.members:
             text += f"- <@{member.id}>\n"
-        
+
         embed.add_field(name=f"члены бригады: ({len(self.members)}/{self.maxMembers})", value=text, inline=False)
         return embed
-    
+
 
     def get_settings(self) -> int:
         for disTag in self.thread.applied_tags:
             tag = Classes.Tag(disTag, self.project)
             if tag.tagType == Classes.TagTypes.difficult:
                 return tag.scoreModifier, tag.maxMembers
-            
+
         return 0, 1000
-    
+
 
     def get_ping(self) -> str:
-        text = f"<@&{self.project.waiterRole.id}>"
+        text = ""
+        if self.project.waiterRole:
+            text = f"<@&{self.project.waiterRole.id}>"
+
         for disTag in self.thread.applied_tags:
             tag = Classes.Tag(disTag, self.project)
             if tag.tagType == Classes.TagTypes.ping:
                 text = f"{text} <@&{tag.ping.id}>"
 
         return text
-    
+
 
     def get_members_ping(self) -> str:
         ret = ""
         for member in self.members:
             ret += f"<@{member.member.id}> "
         return ret
-    
+
 
     def is_endingResult_filled(self):
         for member in self.members:
@@ -212,17 +215,18 @@ class Task:
             member.task_end(self)
         self.project.end_task(self)
 
-    
+
     def set_brigadire(self, member) -> None:
         self.brigadire = member
         self.update()
-    
-    
+
+
     def set_last_save(self, save):
         self.lastSave = save
         self.update()
-    
+
     def set_max_members(self, maxMem: int):
         self._maxMembers = maxMem
         self.maxMembers = maxMem
         self.update()
+

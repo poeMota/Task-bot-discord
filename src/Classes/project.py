@@ -31,7 +31,7 @@ class Project:
             self.lastTaskId = 0
             self.maxBrigPerUser = 0
             self.forum: disnake.ForumChannel = 0
-            self.waiterRole: disnake.Role = 0
+            self.waiterRole: disnake.Role = None
             self.mainChannel: disnake.TextChannel = 0
             self.statPost: disnake.Message = {}
             self.statChannel: disnake.TextChannel = 0
@@ -115,7 +115,7 @@ class Project:
             "max_brigades_per_user": self.maxBrigPerUser,
             "last_task_id": self.lastTaskId,
             "forum": self.forum.id,
-            "waiter_role": self.waiterRole.id,
+            "waiter_role": 0 if not self.waiterRole else self.waiterRole.id,
             "main_channel": self.mainChannel.id,
             "stat_post": _stat_posts,
             "stat_channel": self.statChannel.id,
@@ -206,7 +206,7 @@ class Project:
         description=f"конфиг проекта",
         color=disnake.Colour.light_gray(),
         D={
-            "макс. бригад для человека": self.maxBrigPerUser,
+            "макс. тасков для человека": self.maxBrigPerUser,
             "роль ждуна": f"<@&{self.waiterRole.id}>",
             "форум": f"<#{self.forum.id}>",
             "основной канал": f"<#{self.mainChannel.id}>",

@@ -8,7 +8,7 @@ from src.Config import *
 from src.Classes import Project, TagTypes, Tag, SubscribePost
 from src.Tools import get_projects
 from src.Logger import *
-from src.Connect import getHWID
+from src.Connect import getUserid
 from src.Localization import LocalizationManager
 from src.HelpManager import HelpManager
 
@@ -40,6 +40,7 @@ def add_config_commands(bot: commands.InteractionBot):
         waiterRole: disnake.Role = commands.Param(
             name=loc.GetString("create-project-command-param-waiterrole-name"),
             description=loc.GetString("create-project-command-param-waiterrole-description")
+            default=None
         ),
         mainChannel: disnake.TextChannel = commands.Param(
             name=loc.GetString("create-project-command-param-mainchannel-name"),
@@ -366,7 +367,7 @@ def add_config_commands(bot: commands.InteractionBot):
             description=loc.GetString("user-id-command-param-ckey-description")
         )):
         await inter.response.defer(ephemeral=True)
-        await inter.edit_original_message(content=f"```{getHWID(ckey)}```")
+        await inter.edit_original_message(content=f"```{getUserid(ckey)}```")
         Logger.medium(inter, loc.GetString("user-id-command-done-log", ckey=ckey))
 
 

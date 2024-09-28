@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-from src.Config import get_data_path, env
+from src.Config import get_data_path, env, from_toml
 
 def unload(url: str, folder="", write=True):
     url = url.removeprefix("/").replace("//", '/').replace(' ', "%C2%A0")
@@ -9,7 +9,12 @@ def unload(url: str, folder="", write=True):
     if folder in url.split("/"):
         url = url.removeprefix(folder)
 
-    data = requests.get(f'{env("URL")}/{folder}/{url}', auth=(env("LOGIN"), env("PASSWORD"))).content
+    data = ""
+    if env("NEEDAUTH"):
+        data = requests.get(f'{env("URL")}/{folder}/{url}', auth=(env("LOGIN"), env("PASSWORD"))).content
+    else:
+        data = requests.get(f'{env("URL")}/{folder}/{url}').content
+
     if write:
         with open(str(get_data_path()) + f'/{url.split("/")[-1]}', "wb") as f:
             f.write(data)
@@ -36,8 +41,8 @@ def getDirs(path: str) -> list[str]:
     return [qoute.text for qoute in soup.find_all('a')]
 
 
-def getHWID(name: str):
-    data = str(requests.get(f'{env("HWIDURL")}name={name}').content).replace('{', '').replace('}', '').replace('"', '').split(',')
+def getUserid(name: str):
+    data = str(requests.get(f'{from_toml("config", "userid_api_url")}name={name}').content).replace('{', '').replace('}', '').replace('"', '').split(',')
     for i in data:
         if "userId" in i: return i.split(':')[-1]
     return "Not found"

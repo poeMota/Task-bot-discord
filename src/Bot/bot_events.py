@@ -15,8 +15,11 @@ def add_events(bot: disnake.Client):
         [Project(bot, name) for name in get_projects()]
         guild: disnake.Guild = bot.guild()
 
-        Logger.logChannel = await bot.fetch_channel(from_toml("config", "log"))
-        Logger.secretLogThread = utils.get(guild.threads, id=from_toml("config", "secret_log_thread"))
+        config = toml_read("config")
+        if "log" in config:
+            Logger.logChannel = await bot.fetch_channel(config["log"])
+        if "notify_log_thread" in config:
+            Logger.secretLogThread = utils.get(guild.threads, id=config["notify_log_thread"])
 
         for url in json_read("subscribe_post"):
             try:
@@ -31,8 +34,10 @@ def add_events(bot: disnake.Client):
     @bot.event
     async def on_member_join(member):
         guild: disnake.Guild = bot.guild()
-        role = utils.get(guild.roles, id=from_toml("config", "guest_role"))
-        await member.add_roles(role)
+        config = toml_read("config")
+        if "guest_role" in config:
+            role = utils.get(guild.roles, id=config["guest_role"])
+            await member.add_roles(role)
 
 
     @bot.event
@@ -101,12 +106,14 @@ def add_events(bot: disnake.Client):
                 await project.create_task(task)
 
                 # Send ping message
-                while True:
-                    try:
-                        await asyncio.sleep(1)
-                        await task.thread.send(content=task.get_ping())
-                        break
-                    except: pass
+                ping_msg = task.get_ping()
+                if ping_msg:
+                    while True:
+                        try:
+                            await asyncio.sleep(1)
+                            await task.thread.send(content=ping_msg)
+                            break
+                        except: pass
 
 
     @bot.event
