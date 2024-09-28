@@ -1,5 +1,6 @@
 # Mapper bot
 data/
+amvera.yml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
