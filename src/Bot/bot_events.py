@@ -1,6 +1,6 @@
 import asyncio
 import disnake
-from disnake import utils
+from disnake import guild, utils
 
 from src.Logger import *
 from src.Tools import get_projects
@@ -38,6 +38,15 @@ def add_events(bot: disnake.Client):
         if "guest_role" in config:
             role = utils.get(guild.roles, id=config["guest_role"])
             await member.add_roles(role)
+
+
+    @bot.event
+    async def on_member_remove(member: disnake.Member):
+        for projectName in get_projects():
+            project = Project(bot, projectName)
+            if project.member_in_project(member):
+                for task in project.tasks.values():
+                    member.leave_task(task)
 
 
     @bot.event
@@ -121,8 +130,7 @@ def add_events(bot: disnake.Client):
         if before.applied_tags != after.applied_tags:
             if isinstance(after.parent, disnake.ForumChannel):
                 task: Task = await bot.get_task_by_thread(after)
-                if task is not None:
-                    task.update()
+                if task: task.update()
 
 
     @bot.event
@@ -130,19 +138,26 @@ def add_events(bot: disnake.Client):
         if before.roles == after.roles:
             return
 
-        _roles = []
+        added = []
+        removed = []
         for role in after.roles:
             if role not in before.roles:
-                _roles.append(role)
+                added.append(role)
 
         for role in before.roles:
             if role not in after.roles:
-                _roles.append(role)
+                removed.append(role)
 
         member = Member(after)
         for projectName in get_projects():
             project = Project(bot, projectName)
-            for role in _roles:
+            in_project = project.member_in_project(member)
+
+            for role in added + removed:
+                if role in removed and role in project.associatedRoles and not in_project:
+                    for task in project.tasks.values():
+                        member.leave_task(task)
+
                 if role in project.associatedRoles:
                     Events.onMemberInfoChanged.raiseEvent(member)
                     return

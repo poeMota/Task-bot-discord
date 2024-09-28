@@ -39,7 +39,7 @@ def add_config_commands(bot: commands.InteractionBot):
         ),
         waiterRole: disnake.Role = commands.Param(
             name=loc.GetString("create-project-command-param-waiterrole-name"),
-            description=loc.GetString("create-project-command-param-waiterrole-description")
+            description=loc.GetString("create-project-command-param-waiterrole-description"),
             default=None
         ),
         mainChannel: disnake.TextChannel = commands.Param(

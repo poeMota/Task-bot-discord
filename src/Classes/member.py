@@ -102,19 +102,29 @@ class Member:
 
 
     def join_task(self, task):
-        self.inTasks[task.project.name].append(task)
-        self.update()
-        task.on_join(self)
-        Logger.debug(f"{self.member.display_name} присоединился к заказу {task.name}")
-        Events.onMemberInfoChanged.raiseEvent(self)
+        projectName = task.project.name
+        if projectName not in self.inTasks:
+            self.inTasks[projectName] = []
+
+        if task.url not in self.inTasks[projectName]:
+            self.inTasks[projectName].append(task.url)
+            self.update()
+            task.on_join(self)
+            Logger.debug(f"{self.member.display_name} присоединился к заказу {task.name}")
+            Events.onMemberInfoChanged.raiseEvent(self)
 
 
     def leave_task(self, task):
-        self.inTasks[task.project.name].remove(task)
-        self.update()
-        task.on_leave(self)
-        Logger.debug(f"{self.member.display_name} покинул заказ {task.name}")
-        Events.onMemberInfoChanged.raiseEvent(self)
+        projectName = task.project.name
+        if projectName not in self.inTasks:
+            return
+
+        if task.url in self.inTasks[projectName]:
+            self.inTasks[projectName].remove(task.url)
+            self.update()
+            task.on_leave(self)
+            Logger.debug(f"{self.member.display_name} покинул заказ {task.name}")
+            Events.onMemberInfoChanged.raiseEvent(self)
 
 
     def task_end(self, task):
@@ -144,7 +154,7 @@ class Member:
         return members_data[str(self.id)]
 
 
-    def stat_embed(self, showHidden: False) -> disnake.Embed:
+    def stat_embed(self, showHidden = False) -> disnake.Embed:
         return embed_from_dict(
             title=f"Статистика {self.member.name}",
             description=None,
