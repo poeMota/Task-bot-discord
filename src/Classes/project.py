@@ -207,10 +207,10 @@ class Project:
         color=disnake.Colour.light_gray(),
         D={
             "макс. тасков для человека": self.maxBrigPerUser,
-            "роль ждуна": f"<@&{self.waiterRole.id}>",
-            "форум": f"<#{self.forum.id}>",
-            "основной канал": f"<#{self.mainChannel.id}>",
-            "канал статистики": f"<#{self.statChannel.id}>",
+            "роль ждуна": "нет" if not self.waiterRole else f"<@&{self.waiterRole.id}>",
+            "форум": "нет" if not self.forum else f"<#{self.forum.id}>",
+            "основной канал": "нет" if not self.mainChannel else f"<#{self.mainChannel.id}>",
+            "канал статистики": "нет" if not self.statChannel else f"<#{self.statChannel.id}>",
             "роли проекта": [f"<@&{role.id}>" for role in self.associatedRoles],
             "теги": [str(tag) for tag in self.tags],
             "таски": [str(task) for task in self.tasks.values()]
@@ -258,7 +258,7 @@ class Project:
 
 
     def update_stat_post(self, ev: Event):
-        if self.inited and self.statPost:
+        if self.inited:
             loop = asyncio.get_event_loop()
             loop.create_task(
                 self.async_update_stat_post()

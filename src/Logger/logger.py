@@ -24,16 +24,17 @@ class Logger:
 
     @staticmethod
     def log(level: Levels, text: str, channel: disnake.TextChannel | disnake.Thread, inter: disnake.AppCommandInteraction = None):
-        if not isinstance(channel, (disnake.TextChannel, disnake.Thread)):
-            return
-
-        loop = asyncio.get_event_loop()
         if inter is not None:
             _text = f"{level.value} ({datetime.now().strftime("%Y-%m-%d %H:%M")}) <{inter.author.name}>: {text}"
         else:
             _text = f"{level.value} ({datetime.now().strftime("%Y-%m-%d %H:%M")}) <система>: {text}"
-        loop.create_task(channel.send(_text))
+
         Logger.tofile(_text.replace('**', ''), prefix=False)
+
+        if not isinstance(channel, (disnake.TextChannel, disnake.Thread)):
+            return
+        loop = asyncio.get_event_loop()
+        loop.create_task(channel.send(_text))
 
     @staticmethod
     def low(inter, text: str):

@@ -1,6 +1,8 @@
+import sys, os
 import disnake
 from disnake.ext import commands
 from disnake import utils
+from aiohttp import ClientSession
 
 from src.Logger import *
 from src.Config import *
@@ -14,17 +16,9 @@ from src.Bot.bot_events import add_events
 
 
 class Bot(commands.InteractionBot):
-    def __new__(cls):
-        if not hasattr(cls, 'instance'):
-            cls._instance = super(Bot, cls).__new__(cls)
-        return cls._instance
-
     def __init__(self):
-        if hasattr(self, '_initialized') and self._initialized:
-            return
         super().__init__(intents=disnake.Intents.all(), test_guilds=[from_toml("config", "guild")])
         self.subPosts: dict[SubscribePost] = {}
-        self._initialized = True
 
         add_stat_commands(self)
         add_task_commands(self)
@@ -80,27 +74,20 @@ class Bot(commands.InteractionBot):
 
     async def restart(self):
         Logger.debug(f"перезапуск бота...")
-        for name in get_projects():
-            try:
-                project = Project(self, name)
-                await project.read_project_info()
-                Logger.debug(f"обновлён проект {name}")
-                for task in project.tasks:
-                    try:
-                        if isinstance(task, Task):
-                            task.read_task()
-                            Logger.debug(f"обновлён заказ {task.name}")
-                    except Exception as e:
-                        Logger.debug(f"Ошибка при обновлении заказа {task.name} - {repr(e)}, завершаем перезапуск")
-                        return
-            except Exception as e:
-                Logger.debug(f"ошибка при обновлении проекта {name} - {repr(e)}, завершаем перезапуск")
-                return
 
         loc = LocalizationManager()
         loc.CollectLocale()
         Logger.debug("локализация перезагружена")
-        Logger.debug("бот успешно перезапущен")
+
+        if self.http._HTTPClient__session is not None:
+            await self.http._HTTPClient__session.close()
+
+        await self.close()
+
+        python = sys.executable
+        args = sys.argv
+
+        os.execv(python, [python] + args)
 
 
     def parse_message_link(self, link: str):

@@ -18,6 +18,7 @@ def json_read(file):
             return json.load(json_file)
     except FileNotFoundError:
         with io.open(get_data_path() / f"{file}.json", "w", encoding="utf8") as json_file:
+            json_file.write("{}")
             return {}
 
 
@@ -86,5 +87,5 @@ def env(key):
 
 
 def get_data_path():
-    return script_dir / '/data/'
+    return (script_dir / 'data/')
 

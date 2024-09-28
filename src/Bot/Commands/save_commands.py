@@ -12,54 +12,62 @@ from src.HelpManager import HelpManager
 
 def add_save_commands(bot: disnake.Client):
     loc = LocalizationManager()
+    helper = HelpManager()
 
-    @bot.slash_command(
-        name=loc.GetString("link-folder-command-name"),
-        description=loc.GetString("link-folder-command-description")
-    )
-    async def link_folder(
-        inter: disnake.CommandInteraction,
-        folder: str = commands.Param(
-            name=loc.GetString("link-folder-command-param-folder-name"),
-            description=loc.GetString("link-folder-command-param-folder-description")
-        )):
-        member = Member(inter.author)
-        if member.folder_is_empty():
+    disabled_commands = from_toml("config", "Commands")
+    if not disabled_commands: disabled_commands = {}
 
-            folder = folder.replace("/", "").replace(" ", "")
-            for mem in bot.guild().members:
-                if Member(mem).ownFolder == folder:
-                    await inter.send(content=loc.GetString("link-folder-command-stranger-folder-response"), ephemeral=True)
-                    Logger.secret(inter, loc.GetString("link-folder-command-stranger-folder-log",
-                                                       folder=folder,
-                                                       member1=inter.author.id,
-                                                       member2=mem.id))
-                    return
+    if "link-folder" not in disabled_commands or disabled_commands["link-folder"]:
+        @bot.slash_command(
+            name=loc.GetString("link-folder-command-name"),
+            description=loc.GetString("link-folder-command-description")
+        )
+        async def link_folder(
+            inter: disnake.CommandInteraction,
+            folder: str = commands.Param(
+                name=loc.GetString("link-folder-command-param-folder-name"),
+                description=loc.GetString("link-folder-command-param-folder-description")
+            )):
+            member = Member(inter.author)
+            if member.folder_is_empty():
 
-            member.change_folder(folder)
-            await inter.send(content=loc.GetString("link-folder-command-success-response"), ephemeral=True)
-            Logger.medium(inter, loc.GetString("link-folder-command-log-folder-linked", folder=folder))
-        else:
-            await inter.send(content=loc.GetString("link-folder-command-already-linked-response", folder=member.ownFolder), ephemeral=True)
+                folder = folder.replace("/", "").replace(" ", "")
+                for mem in bot.guild().members:
+                    if Member(mem).ownFolder == folder:
+                        await inter.send(content=loc.GetString("link-folder-command-stranger-folder-response"), ephemeral=True)
+                        Logger.secret(inter, loc.GetString("link-folder-command-stranger-folder-log",
+                                                           folder=folder,
+                                                           member1=inter.author.id,
+                                                           member2=mem.id))
+                        return
+
+                member.change_folder(folder)
+                await inter.send(content=loc.GetString("link-folder-command-success-response"), ephemeral=True)
+                Logger.medium(inter, loc.GetString("link-folder-command-log-folder-linked", folder=folder))
+            else:
+                await inter.send(content=loc.GetString("link-folder-command-already-linked-response", folder=member.ownFolder), ephemeral=True)
+        helper.AddCommand(link_folder)
 
 
-    @bot.slash_command(
-        name=loc.GetString("change-folder-command-name"),
-        description=loc.GetString("change-folder-command-description")
-    )
-    async def change_folder(
-        inter: disnake.CommandInteraction,
-        member: disnake.Member = commands.Param(
-            name=loc.GetString("change-folder-command-param-member-name"),
-            description=loc.GetString("change-folder-command-param-member-description")
-        ),
-        folder: str = commands.Param(
-            name=loc.GetString("change-folder-command-param-folder-name"),
-            description=loc.GetString("change-folder-command-param-folder-description")
-        )):
-        Member(member).change_folder(folder)
-        await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
-        Logger.medium(inter, loc.GetString("change-folder-command-log-folder-changed", folder=folder))
+    if "change-folder" not in disabled_commands or disabled_commands["change-folder"]:
+        @bot.slash_command(
+            name=loc.GetString("change-folder-command-name"),
+            description=loc.GetString("change-folder-command-description")
+        )
+        async def change_folder(
+            inter: disnake.CommandInteraction,
+            member: disnake.Member = commands.Param(
+                name=loc.GetString("change-folder-command-param-member-name"),
+                description=loc.GetString("change-folder-command-param-member-description")
+            ),
+            folder: str = commands.Param(
+                name=loc.GetString("change-folder-command-param-folder-name"),
+                description=loc.GetString("change-folder-command-param-folder-description")
+            )):
+            Member(member).change_folder(folder)
+            await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
+            Logger.medium(inter, loc.GetString("change-folder-command-log-folder-changed", folder=folder))
+        helper.AddCommand(change_folder)
 
 
     async def unload_save(
@@ -139,49 +147,44 @@ def add_save_commands(bot: disnake.Client):
                                                     path=path.strip()))
 
 
-    @bot.slash_command(
-        name=loc.GetString("save-command-name"),
-        description=loc.GetString("save-command-description")
-    )
-    async def save(
-        inter: disnake.AppCommandInteraction,
-        path: str = commands.Param(
-            name=loc.GetString("save-command-param-path-name"),
-            description=loc.GetString("save-command-param-path-description"),
-            default=""
-        )):
-        if not path.strip() or path.endswith("/"):
-            await unload_dropdown_save(inter, path)
-            return
+    if "save" not in disabled_commands or disabled_commands["save"]:
+        @bot.slash_command(
+            name=loc.GetString("save-command-name"),
+            description=loc.GetString("save-command-description")
+        )
+        async def save(
+            inter: disnake.AppCommandInteraction,
+            path: str = commands.Param(
+                name=loc.GetString("save-command-param-path-name"),
+                description=loc.GetString("save-command-param-path-description"),
+                default=""
+            )):
+            if not path.strip() or path.endswith("/"):
+                await unload_dropdown_save(inter, path)
+                return
 
-        await unload_save(inter, path)
-
-
-    @bot.slash_command(
-        name=loc.GetString("save-plus-command-name"),
-        description=loc.GetString("save-plus-command-description")
-    )
-    async def save_plus(
-        inter: disnake.AppCommandInteraction,
-        path: str = commands.Param(
-            name=loc.GetString("save-plus-command-param-path-name"),
-            description=loc.GetString("save-plus-command-param-path-description"),
-            default=""
-        )):
-        if not path.strip() or path.endswith("/"):
-            await unload_dropdown_save(inter, path, False)
-            return
-
-        await unload_save(inter, path, False)
+            await unload_save(inter, path)
+        helper.AddCommand(save)
 
 
-    helper = HelpManager()
-    helper.AddCommands([
-        link_folder,
-        change_folder,
-        save,
-        save_plus
-    ])
+    if "save-plus" not in disabled_commands or disabled_commands["save-plus"]:
+        @bot.slash_command(
+            name=loc.GetString("save-plus-command-name"),
+            description=loc.GetString("save-plus-command-description")
+        )
+        async def save_plus(
+            inter: disnake.AppCommandInteraction,
+            path: str = commands.Param(
+                name=loc.GetString("save-plus-command-param-path-name"),
+                description=loc.GetString("save-plus-command-param-path-description"),
+                default=""
+            )):
+            if not path.strip() or path.endswith("/"):
+                await unload_dropdown_save(inter, path, False)
+                return
+
+            await unload_save(inter, path, False)
+        helper.AddCommand(save_plus)
 
 
 # region View

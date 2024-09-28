@@ -203,11 +203,20 @@ class Task:
     async def close(self):
         self._done = True
 
+        loop = asyncio.get_event_loop()
+        loop.create_task(self.thread.send(content="Заказ завершен :white_check_mark:"))
+
         # Change tags
         # FIXME: sometimes doesnt work, thx discord
         tags = self.thread.applied_tags
-        await self.thread.add_tags(self.project.get_tag(Classes.TagTypes.end))
-        await self.thread.remove_tags(*tags)
+
+        endTag = self.project.get_tag(Classes.TagTypes.end)
+        if endTag:
+            await self.thread.add_tags(endTag)
+
+        try:
+            await self.thread.remove_tags(*tags)
+        except: pass # Ok
 
         await self.thread.edit(locked=True)
 
