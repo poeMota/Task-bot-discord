@@ -27,7 +27,7 @@ class Tag:
             self.maxMembers = 0
 
             self.read_tag()
-            
+
             self._initialized = True
 
 
@@ -53,10 +53,10 @@ class Tag:
 
         tag = project_data[self.project.name]["tags"][str(self.id)]
 
-        if tag["type"] == "ping_tag": 
+        if tag["type"] == "ping_tag":
             self.tagType = TagTypes.ping
             self.ping = None if "ping_role" not in tag else self.project.bot.get_role(tag["ping_role"])
-        elif tag["type"] == "difficult_tag": 
+        elif tag["type"] == "difficult_tag":
             self.tagType = TagTypes.difficult
             self.scoreModifier = 0 if "score_modifier" not in tag else tag["score_modifier"]
             self.maxMembers = 20 if "max_members" not in tag else tag["max_members"]
@@ -72,10 +72,10 @@ class Tag:
         tag = {
             "type": self.tagType.value,
         }
-        if self.tagType == TagTypes.difficult: 
+        if self.tagType == TagTypes.difficult:
             tag["score_modifier"] = self.scoreModifier
             tag["max_members"] = self.maxMembers
-        elif self.tagType == TagTypes.ping: 
+        elif self.tagType == TagTypes.ping:
             tag["ping_role"] = self.ping.id
 
         project_data[self.project.name]["tags"][str(self.id)] = tag
@@ -89,3 +89,4 @@ class TagTypes(enum.Enum):
     frozen = "frozen_tag"
     end = "ended_tag"
     closed = "closed_tag"
+

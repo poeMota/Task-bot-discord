@@ -28,13 +28,15 @@ def add_save_commands(bot: disnake.Client):
                 name=loc.GetString("link-folder-command-param-folder-name"),
                 description=loc.GetString("link-folder-command-param-folder-description")
             )):
+            await inter.response,defer(ephemeral=True)
+
             member = Member(inter.author)
             if member.folder_is_empty():
 
                 folder = folder.replace("/", "").replace(" ", "")
                 for mem in bot.guild().members:
                     if Member(mem).ownFolder == folder:
-                        await inter.send(content=loc.GetString("link-folder-command-stranger-folder-response"), ephemeral=True)
+                        await inter.edit_original_message(content=loc.GetString("link-folder-command-stranger-folder-response"))
                         Logger.secret(inter, loc.GetString("link-folder-command-stranger-folder-log",
                                                            folder=folder,
                                                            member1=inter.author.id,
@@ -42,10 +44,10 @@ def add_save_commands(bot: disnake.Client):
                         return
 
                 member.change_folder(folder)
-                await inter.send(content=loc.GetString("link-folder-command-success-response"), ephemeral=True)
+                await inter.edit_original_message(content=loc.GetString("link-folder-command-success-response"))
                 Logger.medium(inter, loc.GetString("link-folder-command-log-folder-linked", folder=folder))
             else:
-                await inter.send(content=loc.GetString("link-folder-command-already-linked-response", folder=member.ownFolder), ephemeral=True)
+                await inter.edit_original_message(content=loc.GetString("link-folder-command-already-linked-response", folder=member.ownFolder))
         helper.AddCommand(link_folder)
 
 
