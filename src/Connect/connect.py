@@ -6,8 +6,7 @@ from src.Config import get_data_path, env, from_toml
 def unload(url: str, folder="", write=True):
     url = url.removeprefix("/").replace("//", '/').replace(' ', "%C2%A0")
     if ".." in url.split("/"): return
-    if folder in url.split("/"):
-        url = url.removeprefix(folder)
+    url = url.removeprefix(folder)
 
     data = ""
     if env("NEEDAUTH"):

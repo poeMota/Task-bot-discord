@@ -84,6 +84,7 @@ def add_save_commands(bot: disnake.Client):
             member = Member(inter.author)
 
             if not isValidUrl(path.strip(), member.ownFolder):
+                print(path.strip(), member.ownFolder)
                 await inter.send(content=loc.GetString("unload-save-command-invalid-path-error"), ephemeral=True)
                 return
 
@@ -134,7 +135,7 @@ def add_save_commands(bot: disnake.Client):
             if not member.folder_is_empty():
                 await inter.response.defer(ephemeral=True)
                 await inter.edit_original_message(content=loc.GetString("unload-dropdown-save-command-menu-prompt"), view=DropDownView(
-                                                    root=member.ownFolder,
+                                                    root=member.ownFolder.split('/')[-1],
                                                     path=f"{member.ownFolder}/{path.strip()}"))
             else:
                 await inter.send(content=loc.GetString("unload-save-command-no-folder-error"), ephemeral=True)
