@@ -28,7 +28,7 @@ def add_save_commands(bot: disnake.Client):
                 name=loc.GetString("link-folder-command-param-folder-name"),
                 description=loc.GetString("link-folder-command-param-folder-description")
             )):
-            await inter.response,defer(ephemeral=True)
+            await inter.response.defer(ephemeral=True)
 
             member = Member(inter.author)
             if member.folder_is_empty():
