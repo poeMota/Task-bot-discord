@@ -11,7 +11,7 @@ from src.Tools import get_projects
 from src.Localization import LocalizationManager
 
 from src.Bot.Commands import *
-from src.Bot.Magazine import add_magazine
+from src.Bot.Magazine import add_shop_commands
 from src.Bot.bot_events import add_events
 
 
@@ -26,7 +26,7 @@ class Bot(commands.InteractionBot):
         add_members_commands(self)
         add_save_commands(self)
         add_fun_commands(self)
-        add_magazine(self)
+        add_shop_commands(self)
         add_help_commands(self)
         add_events(self)
 
