@@ -22,8 +22,9 @@ class Page:
             "<!LogChannel>": Logger.logChannel,
             "\\n": "\n"
         }
-        for repl in replacements:
-            self.replacements[f"<{repl}>"] = replacements[repl]
+        if replacements:
+            for repl in replacements:
+                self.replacements[f"<{repl}>"] = replacements[repl]
 
         self.readProto(proto)
 
