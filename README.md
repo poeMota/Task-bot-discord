@@ -122,26 +122,26 @@ PASSWORD =
 Остальная конфигурация бота хранится в `data/config.toml`.
 Вот как она выглядит:
 ```toml
-guild                 	   = 0 # ID сервера
-userid_api_url        	   = "https://auth.spacestation14.com/api/query/name?" # ссылка на сайт с api для получения ID пользователя SS14, используется для команду /userid
+guild                     = 0 # ID сервера
+userid_api_url            = "https://auth.spacestation14.com/api/query/name?" # ссылка на сайт с api для получения ID пользователя SS14, используется для команду /userid
 max_dropdowns_per_message = 4 # Максимальное количество выпадающих меню, которые могут быть в одном сообщении, используется в команде /закрыть
 # Необязательные параметры
-log                   	   = 0 # ID канала для логов
-guest_role            	   = 0 # ID роли, которая будет выдаваться при заходе на сервер
-notify_log_thread        	= 0 # ID ветки для оповещений
+log                       = 0 # ID канала для логов
+guest_role                = 0 # ID роли, которая будет выдаваться при заходе на сервер
+notify_log_thread         = 0 # ID ветки для оповещений
 
 [Localization]
-locale_path              	= "locale" # путь до папки с локализацией команд
-culture               	   = "RU_ru" # название папки с локализацией на определённый язык
+locale_path               = "locale" # путь до папки с локализацией команд
+culture                   = "RU_ru" # название папки с локализацией на определённый язык
 
 [TaskEndRating]
 # Раздел с вариантами оценки работы в /закрыть
-# название локализации	= коэффициент, на который умножаются базовые очки таска
-task-rating-very-good 	   = 2
-task-rating-good      	   = 1.5
-task-rating-normal       	= 1
-task-rating-bad       	   = 0.5
-task-rating-no-time   	   = 0
+# название локализации    = коэффициент, на который умножаются базовые очки таска
+task-rating-very-good     = 2
+task-rating-good          = 1.5
+task-rating-normal        = 1
+task-rating-bad           = 0.5
+task-rating-no-time       = 0
 task-rating-didnt-working = -0.5
 
 [Task]
