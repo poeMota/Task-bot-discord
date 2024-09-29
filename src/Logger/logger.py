@@ -6,7 +6,7 @@ import os
 import sys
 from pathlib import Path
 
-from src.Config import get_data_path
+from src.Config import *
 
 
 class Levels(enum.Enum):
@@ -21,6 +21,9 @@ class Levels(enum.Enum):
 class Logger:
     logChannel: disnake.TextChannel = None
     secretLogThread: disnake.Thread = None
+
+    config = from_toml("config", "Logging")
+    if not config: config = {}
 
     @staticmethod
     def log(level: Levels, text: str, channel: disnake.TextChannel | disnake.Thread, inter: disnake.AppCommandInteraction = None):
@@ -38,27 +41,33 @@ class Logger:
 
     @staticmethod
     def low(inter, text: str):
-        Logger.log(Levels.Low, text, Logger.logChannel, inter)
+        if "low" not in Logger.config or Logger.config["low"]:
+            Logger.log(Levels.Low, text, Logger.logChannel, inter)
 
     @staticmethod
     def medium(inter, text: str):
-        Logger.log(Levels.Medium, text, Logger.logChannel, inter)
+        if "medium" not in Logger.config or Logger.config["medium"]:
+            Logger.log(Levels.Medium, text, Logger.logChannel, inter)
 
     @staticmethod
     def high(inter, text: str):
-        Logger.log(Levels.High, text, Logger.logChannel, inter)
+        if "high" not in Logger.config or Logger.config["high"]:
+            Logger.log(Levels.High, text, Logger.logChannel, inter)
 
     @staticmethod
     def debug(text: str):
-        Logger.log(Levels.Debug, text, Logger.logChannel)
+        if "debug" not in Logger.config or Logger.config["debug"]:
+            Logger.log(Levels.Debug, text, Logger.logChannel)
 
     @staticmethod
     def error(text: str):
-        Logger.log(Levels.Error, text, Logger.logChannel)
+        if "error" not in Logger.config or Logger.config["error"]:
+            Logger.log(Levels.Error, text, Logger.logChannel)
 
     @staticmethod
     def secret(inter, text: str):
-        Logger.log(Levels.Secret, text, Logger.secretLogThread, inter)
+        if "secret" not in Logger.config or Logger.config["error"]:
+            Logger.log(Levels.Secret, text, Logger.secretLogThread, inter)
 
     @staticmethod
     def tofile(text: str, level: Levels = Levels.Debug, prefix: bool = True):

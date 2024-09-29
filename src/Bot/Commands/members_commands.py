@@ -1,6 +1,7 @@
 import disnake
 from disnake.ext import commands
 
+from src.Tools import get_projects
 from src.Classes import Member
 from src.Logger import *
 from src.Config import *
@@ -60,6 +61,12 @@ def add_members_commands(bot: disnake.Client):
                     loc.GetString('change-member-stat-command-param-param-warns')
                 ]
             ),
+            project: str = commands.Param(
+                name=loc.GetString('change-member-stat-command-param-project-name'),
+                description=loc.GetString('change-member-stat-command-param-project-description'),
+                choices=get_projects(),
+                default=None
+            ),
             mode: str = commands.Param(
                 name=loc.GetString('change-member-stat-command-param-mode-name'),
                 description=loc.GetString('change-member-stat-command-param-mode-description'),
@@ -71,16 +78,22 @@ def add_members_commands(bot: disnake.Client):
             )):
             member = Member(mem)
 
-            if param == loc.GetString('change-member-stat-command-param-param-done-tasks'):
+            if param == loc.GetString('change-member-stat-command-param-param-done-tasks') and project:
+                if project not in member.doneTasks:
+                    member.doneTasks[project] = []
+
                 if mode == loc.GetString('add'):
-                    member.doneTasks.append(value)
+                    member.doneTasks[project].append(value)
                 else:
-                    member.doneTasks = member.rem_from_stat(member.doneTasks, value)
-            elif param == loc.GetString('change-member-stat-command-param-param-curation-tasks'):
+                    member.doneTasks[project] = member.rem_from_stat(member.doneTasks[project], value)
+            elif param == loc.GetString('change-member-stat-command-param-param-curation-tasks') and project:
+                if project not in member.curationTasks:
+                    member.curationTasks[project] = []
+
                 if mode == loc.GetString('add'):
-                    member.curationTasks.append(value)
+                    member.curationTasks[project].append(value)
                 else:
-                    member.curationTasks = member.rem_from_stat(member.curationTasks, value)
+                    member.curationTasks[project] = member.rem_from_stat(member.curationTasks[project], value)
             elif param == loc.GetString('change-member-stat-command-param-param-notes'):
                 if mode == loc.GetString('add'):
                     member.notes.append(value)
