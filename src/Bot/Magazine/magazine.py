@@ -65,7 +65,7 @@ async def page(
     magazine = Magazine(current_page=Member(inter.author).currentMagazinePage, inter=inter)
 
     if not magazine.pages:
-        await inter.response.send_message(loc.GetString("shop-no-pages-response"))
+        await inter.response.send_message(loc.GetString("shop-no-pages-response"), ephemeral=True)
         return
 
     embed.add_field(name=loc.GetString("shop-embed-item", num=magazine.current_page + 1), value=magazine.pages[magazine.current_page].name, inline=False)
