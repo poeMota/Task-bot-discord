@@ -30,6 +30,10 @@ def add_save_commands(bot: disnake.Client):
             )):
             await inter.response.defer(ephemeral=True)
 
+            if not isValidUrl(folder.strip() + '/'):
+                await inter.send(content=loc.GetString("unload-save-command-invalid-path-error"), ephemeral=True)
+                return
+
             member = Member(inter.author)
             if member.folder_is_empty():
 
@@ -84,7 +88,6 @@ def add_save_commands(bot: disnake.Client):
             member = Member(inter.author)
 
             if not isValidUrl(path.strip(), member.ownFolder):
-                print(path.strip(), member.ownFolder)
                 await inter.send(content=loc.GetString("unload-save-command-invalid-path-error"), ephemeral=True)
                 return
 
