@@ -37,7 +37,7 @@ def add_save_commands(bot: disnake.Client):
             member = Member(inter.author)
             if member.folder_is_empty():
 
-                folder = folder.replace("/", "").replace(" ", "")
+                folder = folder.removesuffix("/").replace(" ", "")
                 for mem in bot.guild().members:
                     if Member(mem).ownFolder == folder:
                         await inter.edit_original_message(content=loc.GetString("link-folder-command-stranger-folder-response"))
@@ -70,6 +70,10 @@ def add_save_commands(bot: disnake.Client):
                 name=loc.GetString("change-folder-command-param-folder-name"),
                 description=loc.GetString("change-folder-command-param-folder-description")
             )):
+            if not isValidUrl(folder.strip() + '/'):
+                await inter.send(content=loc.GetString("unload-save-command-invalid-path-error"), ephemeral=True)
+                return
+
             Member(member).change_folder(folder)
             await inter.send(content=loc.GetString("command-done-response"), ephemeral=True)
             Logger.medium(inter, loc.GetString("change-folder-command-log-folder-changed", folder=folder))
