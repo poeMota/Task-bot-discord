@@ -31,7 +31,9 @@ def isValidUrl(url: str, folder: str = ""):
 
 def fileDates(url: str) -> dict[str: str]:
     data = unload(url, write=False)
-    return {qoute.text: qoute.next_sibling.strip().split("  ")[0] for qoute in BeautifulSoup(data, "html.parser").find_all('a')}
+    return {qoute.text: qoute.next_sibling.strip().split("  ")[0] for qoute in BeautifulSoup(data,
+                                                                                             "html.parser").find_all('a')
+            if qoute.next_sibling}
 
 
 def getDirs(path: str) -> list[str]:

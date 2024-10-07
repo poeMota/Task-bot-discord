@@ -38,6 +38,9 @@ def add_save_commands(bot: disnake.Client):
             if member.folder_is_empty():
 
                 folder = folder.removesuffix("/").replace(" ", "")
+
+                # Not optimized
+                '''
                 for mem in bot.guild().members:
                     if Member(mem).ownFolder == folder:
                         await inter.edit_original_message(content=loc.GetString("link-folder-command-stranger-folder-response"))
@@ -46,6 +49,7 @@ def add_save_commands(bot: disnake.Client):
                                                            member1=inter.author.id,
                                                            member2=mem.id))
                         return
+                '''
 
                 member.change_folder(folder)
                 await inter.edit_original_message(content=loc.GetString("link-folder-command-success-response"))

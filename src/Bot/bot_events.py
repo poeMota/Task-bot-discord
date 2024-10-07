@@ -41,9 +41,10 @@ def add_events(bot: disnake.Client):
 
 
     @bot.event
-    async def on_member_remove(member: disnake.Member):
+    async def on_member_remove(mem: disnake.Member):
         for projectName in get_projects():
             project = Project(bot, projectName)
+            member = Member(mem)
             if project.member_in_project(member):
                 for task in project.tasks.values():
                     member.leave_task(task)

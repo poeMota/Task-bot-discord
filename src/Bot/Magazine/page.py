@@ -99,12 +99,30 @@ class Page:
         if channel:
             if type(channel) is str:
                 channel: disnake.TextChannel = self.convertStr(channel)
-            elif type(channel) is int:
+            if type(channel) is int:
                 channel = utils.get(inter.guild.channels, id=channel)
-            else:
-                raise ValueError(f"Wrong channel parametr type {type(channel)} for sendMessage")
 
             await channel.send(content=message)
         else:
             await inter.channel.send(content=message)
+
+
+    async def mute(self, inter: disnake.AppCommandInteraction, member: int | str, duration: int):
+        if member is str:
+            member = self.convertStr(member)
+        if member is int:
+            member = utils.get(inter.guild.members, id=member)
+
+        if member:
+            await member.timeout(duration=duration)
+
+
+    async def changeScore(self, inter: disnake.AppCommandInteraction, member: int | str, score: int):
+        if member is str:
+            member = self.convertStr(member)
+        if member is int:
+            member = utils.get(inter.guild.members, id=member)
+
+        if member is disnake.Member:
+            Member(member).change_score(score)
 
